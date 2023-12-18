@@ -283,4 +283,8 @@ module "kms" {
     location = try(each.value.location, var.project.region)
   }
   keys = each.value.keys
+
+  depends_on = [
+    module.iam,
+  ]
 }
