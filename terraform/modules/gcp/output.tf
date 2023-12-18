@@ -35,3 +35,28 @@ output "cloudsql_postgres" {
     )
   }
 }
+
+output "redis" {
+  value = module.redis
+}
+
+output "cloudrun_services" {
+  value = {
+    for cloudrun_service_name, cloudrun_service_obj in module.cloudrun_services :
+    cloudrun_service_name => cloudrun_service_obj.cloudrun_service
+  }
+}
+
+output "application_lbs" {
+  value = {
+    for application_lb_name, application_lb_obj in module.application_lbs :
+    application_lb_name => application_lb_obj.application_lb
+  }
+}
+
+output "kms" {
+  value = {
+    for kms_name, kms_obj in module.kms :
+    kms_name => kms_obj
+  }
+}

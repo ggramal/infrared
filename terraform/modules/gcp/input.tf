@@ -68,3 +68,21 @@ variable "redis_instances" {
   type        = map(any)
   default     = {}
 }
+
+variable "cloudrun_services" {
+  description = "A list of cloudrun service instances"
+  type        = any
+  default     = {}
+}
+
+variable "application_lbs" {
+  description = "A list of application loadbalancers"
+  type        = map(any)
+  default     = {}
+}
+
+variable "kms_key_rings" {
+  description = "A list of kms key rings"
+  type        = map(any)
+  default     = {}
+}

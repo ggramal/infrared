@@ -22,3 +22,15 @@ variable "name" {
   type        = string
   description = "Redis instance name"
 }
+
+variable "auth_enabled" {
+  type        = bool
+  description = "Enable auth for Redis instance"
+  default     = false
+}
+
+variable "auth_network" {
+  type        = string
+  description = "Name of authorized network for Redis instance"
+  default     = "default"
+}

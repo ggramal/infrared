@@ -12,6 +12,23 @@ module "subnets" {
   secondary_ranges = local.secondary_ranges
 }
 
+resource "google_vpc_access_connector" "cloudrun_connector" {
+  for_each = {
+    for subnet_name, subnet_obj in var.subnets :
+    subnet_name => subnet_obj
+    if subnet_obj.cloudrun_connector != null
+  }
+  name = each.key
+  subnet {
+    name = module.subnets.subnets["${each.value.region}/${each.key}"].name
+  }
+  machine_type  = each.value.cloudrun_connector.machine_type
+  min_instances = each.value.cloudrun_connector.min_instances
+  max_instances = each.value.cloudrun_connector.max_instances
+  region        = each.value.region
+  project       = var.vpc.project_id
+}
+
 module "cloud_routers" {
   source     = "git::ssh://git@github.com/terraform-google-modules/terraform-google-cloud-router.git?ref=v6.0.2"
   for_each   = var.routers

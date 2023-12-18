@@ -49,6 +49,16 @@ variable "subnets" {
           ),
           []
         )
+        cloudrun_connector = optional(
+          object(
+            {
+              machine_type  = string
+              min_instances = optional(number, 2)
+              max_instances = optional(number, 3)
+            }
+          )
+          ,
+        )
       }
     )
   )

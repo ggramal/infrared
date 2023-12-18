@@ -3,7 +3,22 @@ output "vpc" {
 }
 
 output "subnets" {
-  value = module.subnets.subnets
+  value = {
+    for subnet_name, subnet_obj in var.subnets :
+    subnet_name => merge(
+      module.subnets.subnets["${subnet_obj.region}/${subnet_name}"]
+      ,
+      {
+        cloudrun_connector = lookup(
+          subnet_obj,
+          "cloudrun_connector",
+          null
+        ) != null ? google_vpc_access_connector.cloudrun_connector[subnet_name] : null
+      }
+
+    )
+
+  }
 }
 
 

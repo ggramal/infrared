@@ -34,5 +34,6 @@ resource "google_secret_manager_secret_iam_binding" "secret" {
 resource "google_secret_manager_secret_version" "secret" {
   secret = google_secret_manager_secret.secret.id
 
-  secret_data = var.secret
+  is_secret_data_base64 = var.is_base64
+  secret_data           = var.secret
 }

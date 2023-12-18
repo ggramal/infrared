@@ -83,6 +83,7 @@ module "gke" {
   depends_on = [
     module.enable_apis,
     module.network,
+    module.iam,
   ]
 }
 
@@ -201,7 +202,6 @@ module "iam" {
   project_id       = var.project.id
   depends_on = [
     module.enable_apis,
-    module.gke,
   ]
 }
 
@@ -228,8 +228,59 @@ module "redis" {
   redis_configs  = each.value.redis_configs
   redis_version  = each.value.redis_version
   tier           = each.value.tier
+  auth_enabled   = try(each.value.auth_enabled, "false")
+  auth_network   = each.value.auth_network
 
   depends_on = [
     module.enable_apis,
   ]
+}
+
+/* cloudrun */
+
+module "cloudrun_services" {
+  source   = "./cloudrun_service"
+  for_each = var.cloudrun_services
+  name     = each.value.name
+  location = each.value.location
+  execution_environment = try(
+    each.value.execution_environment,
+    "EXECUTION_ENVIRONMENT_GEN2"
+  )
+
+  ingress         = each.value.ingress
+  members         = try(each.value.members, [])
+  neg_enabled     = try(each.value.neg_enabled, false)
+  container       = each.value.container
+  scaling         = each.value.scaling
+  service_account = each.value.service_account
+  vpc_access      = try(each.value.vpc_access, null)
+  volumes         = try(each.value.volumes, {})
+
+  depends_on = [
+    module.enable_apis,
+    module.iam,
+  ]
+}
+
+/* albs */
+
+module "application_lbs" {
+  source       = "./application_loadbalancer"
+  for_each     = var.application_lbs
+  name         = each.value.name
+  backends     = each.value.backends
+  http_target  = each.value.http_target
+  https_target = each.value.https_target
+}
+
+/* kms */
+module "kms" {
+  source   = "./kms"
+  for_each = var.kms_key_rings
+  key_ring = {
+    name     = each.value.name
+    location = try(each.value.location, var.project.region)
+  }
+  keys = each.value.keys
 }
