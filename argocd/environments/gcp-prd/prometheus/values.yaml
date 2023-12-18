@@ -1,0 +1,289 @@
+operator:
+  commonLabels:
+    prometheus: main
+
+  prometheusOperator:
+    enabled: true
+    tls:
+      enabled: false
+    admissionWebhooks:
+      enabled: false
+    kubeletService:
+      enabled: true
+      namespace: prometheus
+    resources:
+      limits:
+        memory: "1Gi"
+      requests:
+        cpu: "100m"
+        memory: "100Mi"
+    nodeSelector:
+      apps-spot: "true"
+    tolerations:
+      - key: "apps-spot"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+
+  kubelet:
+    enabled: true
+    namespace: prometheus
+    serviceMonitor:
+      cAdvisorMetricRelabelings:
+        # Drop cgroup metrics with no pod.
+        - sourceLabels: [id, pod]
+          action: drop
+          regex: ".+;"
+
+alertmanager-configs:
+  enabled: true
+  configs:
+    main:
+      enabled: true
+      selector:
+        alertmanager: main
+      spec:
+        receivers:
+          - name: sre-prd
+            slackConfigs:
+              - channel: "#alerts-exampleco"
+                sendResolved: true
+                apiURL:
+                  name: alertmanager
+                  key: SLACK_WEBHOOK
+                title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]'
+                text: >-
+                  {{ range .Alerts }}
+                      *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+                      *Description:* {{ .Annotations.description }}
+                      *Details:*
+                      {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+                      {{ end }}
+                  {{ end }}
+        route:
+          continue: false
+          receiver: sre-prd
+          matchers:
+            - name: env
+              value: "prd"
+            - name: team
+              value: "sre"
+            - name: severity
+              value: "(low|medium|high|critical)"
+              regex: true
+
+
+kube-state-metrics:
+  enabled: true
+  serviceMonitor:
+    namespace: prometheus
+    labels:
+      prometheus: main
+  nodeSelector:
+    apps-spot: "true"
+  tolerations:
+    - key: "apps-spot"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+
+kong-plugins:
+  enabled: true
+  plugins:
+    - name: thanos-main-ip-restriction
+      plugin_name: ip-restriction
+      annotations:
+        kubernetes.io/ingress.class: konghq-gcp-prd
+      config:
+        allow:
+          - 34.147.180.165
+
+alertmanager-main:
+  enabled: true
+
+  service:
+    enabled: true
+
+  servicemonitor:
+    enabled: true
+    prometheusSelector:
+      prometheus: main
+    endpoints:
+      - port: http
+        path: /metrics
+
+  alertmanager:
+    spec:
+      alertmanagerConfigSelector:
+        matchLabels:
+          alertmanager: main
+      nodeSelector:
+        apps-spot: "true"
+      tolerations:
+        - key: "apps-spot"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+
+prometheus-main:
+  enabled: true
+
+  serviceAccount:
+    create: true
+    annotations:
+      iam.gke.io/gcp-service-account: thanos@exampleco-production.iam.gserviceaccount.com
+
+  service:
+    enabled: true
+
+  servicemonitor:
+    enabled: true
+    prometheusSelector:
+      prometheus: main
+    endpoints:
+      - port: http
+        path: /metrics
+
+  thanosService:
+    enabled: true
+    annotations:
+      konghq.com/protocol: grpc
+
+  thanosServiceMonitor:
+    enabled: true
+    prometheusSelector:
+      prometheus: main
+    endpoints:
+      - port: http
+        path: /metrics
+
+  thanosIngress:
+    enabled: true
+    className: "konghq-gcp-prd"
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+      konghq.com/protocols: grpc,grpcs
+      konghq.com/plugins: thanos-main-ip-restriction
+    hosts:
+      - host: thanos.prd.exampleco.com
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: thanos-prd-exampleco-com
+        hosts:
+          - thanos.prd.exampleco.com
+
+  prometheus:
+    spec:
+      thanos:
+        image: quay.io/thanos/thanos:v0.31.0
+        version: v0.31.0
+        objectStorageConfig:
+          key: objstore.yml
+          name: thanos
+
+      externalLabels:
+        env: gcp-prd
+
+      ruleSelector:
+        matchLabels:
+          prometheus: main
+
+      serviceMonitorSelector:
+        matchLabels:
+          prometheus: main
+
+      podMonitorSelector:
+        matchLabels:
+          prometheus: main
+
+      probeSelector:
+        matchLabels:
+          prometheus: main
+
+      retention: 8h
+
+      alerting:
+        alertmanagers:
+          - name: "{{ .Release.Name }}-alertmanager-main"
+            namespace: prometheus
+            port: http
+
+
+      storage:
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: "2Gi"
+
+prometheus-blackbox-exporter:
+  enabled: true
+
+probes:
+  enabled: true
+  probes:
+    api:
+      selector:
+        prometheus: main
+      enabled: true
+      spec:
+        jobName: "api"
+        module: http_2xx
+        prober:
+          url: prometheus-gcp-prd-prometheus-blackbox-exporter:9115
+        targets:
+          staticConfig:
+            static:
+              - https://api.prd.exampleco.com/api/health/db
+
+prometheus-rules:
+  enabled: true
+  PrometheusRules: {}
+  PrometheusAlerts:
+    prometheus-main:
+      env: "prd"
+      team: sre
+      selector:
+        prometheus: main
+      AbsentMetricCritical:
+        rules:
+          - metric: probe_success{job="api"}
+            source: "prometheus-blackbox-exporter"
+          - metric: "kong_http_requests_total"
+            source: "kong exporter"
+      CriticalMetric:
+        interval: "31s"
+        rules:
+          #Kong (nginx)
+          - name: ErrorRateIncreasedFor_5XX
+            expr: sum by (exported_service) (rate(kong_http_requests_total{code=~"5.."}[10m])) / sum by (exported_service) (rate(kong_http_requests_total[10m])) > 0.1
+            for: 10m
+            description: "KongHQ error rate is high for {{ $labels.exported_service }} service"
+          # Blackbox
+          - name: api
+            expr: probe_success{job="api"} == 0
+            for: 2m
+            description: URL {{$labels.instance}} is down/unreachable.
+            summary: "{{$labels.instance}} is down"
+
+          # Deployment
+          - name: "Pods_waiting_state"
+            for: "20m"
+            description: "Container {{ $labels.container }} in {{ $labels.exported_pod }} waiting with reason {{ $labels.reason }} for >20 minutes"
+            expr: "sum by (exported_pod, container, namespace, reason) (kube_pod_container_status_waiting_reason{exported_namespace!='kube-system'})>0"
+          - name: "Pods_waiting_state_kube-system"
+            for: "1h"
+            description: "Container {{ $labels.container }} in {{ $labels.exported_pod }} waiting with reason {{ $labels.reason }} for >1h"
+            expr: "sum by (exported_pod, container, namespace, reason) (kube_pod_container_status_waiting_reason{exported_namespace='kube-system'})>0"
+          - name: "pod_replicas_not_ready"
+            for: "15m"
+            description: "Pods replicas less than specified for '{{ $labels.deployment }}'"
+            expr: "kube_deployment_spec_replicas{} != kube_deployment_status_replicas_available{}"
+          - name: "daemonset_not_ready"
+            for: "15m"
+            description: "daemonset '{{ $labels.daemonset }}' not scheduled in 10m"
+            expr: "kube_daemonset_status_number_misscheduled{} > 1"

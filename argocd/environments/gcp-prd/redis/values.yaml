@@ -1,0 +1,9 @@
+redis-operator:
+  enabled: true
+  image:
+    tag: v1.2.4
+  monitoring:
+    enabled: true
+    serviceMonitor: true
+    prometheus:
+      name: main

@@ -1,0 +1,29 @@
+{{- if .Values.vhosts }}
+{{- range $vhost_name, $vhost_obj := .Values.vhosts }}
+{{- range $policy_name, $policy_obj := $vhost_obj.policies }}
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Policy
+metadata:
+  name: {{ $policy_name }}
+  labels:
+{{- if $policy_obj.labels }}
+{{ toYaml $policy_obj.labels | indent 4 }}
+    {{- include "rabbitmq-cluster.labels" $ | nindent 4 }}
+{{- else }}
+    {{- include "rabbitmq-cluster.labels" $ | nindent 4 }}
+{{- end }}
+spec:
+  name: {{ $policy_name }}
+  vhost: {{ $vhost_name }}
+  pattern: {{ $policy_obj.pattern }}
+  applyTo: {{ $policy_obj.apply_to }}
+  {{- with $policy_obj.definition }}
+  definition:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rabbitmqClusterReference:
+    name: {{ include "rabbitmq-cluster.fullname" $ }}
+{{- end }}
+{{- end }}
+{{- end }}

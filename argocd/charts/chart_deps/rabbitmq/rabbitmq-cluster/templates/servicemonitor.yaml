@@ -1,0 +1,32 @@
+{{- $service_monitor := .Values.serviceMonitor -}}
+{{- if and $service_monitor.enabled $service_monitor.metric_families}}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "rabbitmq-cluster.fullname" . }}
+  labels:
+    {{- include "rabbitmq-cluster.labels" $ | nindent 4 }}
+    {{- toYaml $service_monitor.selector | nindent 4 }}
+spec:
+  endpoints:
+  - port: prometheus
+    scheme: http
+    {{- if $service_monitor.interval }}
+    interval: {{ $service_monitor.interval }}
+    {{- end }}
+    {{- if $service_monitor.scrapeTimeout }}
+    scrapeTimeout: {{ $service_monitor.scrapeTimeout }}
+    {{- end }}
+    path: /metrics/detailed
+    params:
+      family:
+      {{- range $service_monitor.metric_families }}
+        - {{ . }}
+      {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "rabbitmq-cluster.fullname" . }}
+  namespaceSelector:
+    any: true
+{{- end }}

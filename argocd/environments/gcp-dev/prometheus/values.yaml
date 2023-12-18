@@ -1,0 +1,145 @@
+operator:
+  commonLabels:
+    prometheus: main
+
+  prometheusOperator:
+    enabled: true
+    tls:
+      enabled: false
+    admissionWebhooks:
+      enabled: false
+    kubeletService:
+      enabled: true
+      namespace: prometheus
+
+  kubelet:
+    enabled: true
+    namespace: prometheus
+    serviceMonitor:
+      cAdvisorMetricRelabelings:
+        # Drop cgroup metrics with no pod.
+        - sourceLabels: [id, pod]
+          action: drop
+          regex: ".+;"
+
+alertmanager-configs:
+  enabled: false
+
+kube-state-metrics:
+  enabled: true
+  serviceMonitor:
+    namespace: prometheus
+    labels:
+      prometheus: main
+
+kong-plugins:
+  enabled: true
+  plugins:
+    - name: thanos-main-ip-restriction
+      plugin_name: ip-restriction
+      annotations:
+        kubernetes.io/ingress.class: konghq-gcp-dev
+      config:
+        allow:
+          - 34.147.180.165
+
+
+prometheus-main:
+  enabled: true
+
+  serviceAccount:
+    create: true
+    annotations:
+      iam.gke.io/gcp-service-account: thanos@exampleco-development.iam.gserviceaccount.com
+
+  service:
+    enabled: true
+
+  servicemonitor:
+    enabled: true
+    prometheusSelector:
+      prometheus: main
+    endpoints:
+      - port: http
+        path: /metrics
+
+  thanosService:
+    enabled: true
+    annotations:
+      konghq.com/protocol: grpc
+
+  thanosServiceMonitor:
+    enabled: true
+    prometheusSelector:
+      prometheus: main
+    endpoints:
+      - port: http
+        path: /metrics
+
+  thanosIngress:
+    enabled: true
+    className: "konghq-gcp-dev"
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+      konghq.com/protocols: grpc,grpcs
+      konghq.com/plugins: thanos-main-ip-restriction
+    hosts:
+      - host: thanos.dev.exampleco.com
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: thanos-dev-exampleco-com
+        hosts:
+          - thanos.dev.exampleco.com
+
+  prometheus:
+    spec:
+      thanos:
+        image: quay.io/thanos/thanos:v0.31.0
+        version: v0.31.0
+        objectStorageConfig:
+          key: objstore.yml
+          name: thanos
+
+      externalLabels:
+        env: gcp-dev
+
+      ruleSelector:
+        matchLabels:
+          prometheus: main
+
+      serviceMonitorSelector:
+        matchLabels:
+          prometheus: main
+
+      podMonitorSelector:
+        matchLabels:
+          prometheus: main
+
+      probeSelector:
+        matchLabels:
+          prometheus: main
+
+      retention: 8h
+
+      storage:
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: "2Gi"
+
+prometheus-blackbox-exporter:
+  enabled: false
+
+prometheus-postgres-exporter:
+  enabled: false
+
+probes:
+  enabled: false
+
+prometheus-rules:
+  enabled: false

@@ -1,0 +1,22 @@
+prometheusSelector: {}
+replicas: 2
+users: {}
+databases: {}
+preparedDatabases: {}
+postgresql:
+  version: "15"
+env: {}
+volume:
+  size: 2Gi
+podAnnotations: {}
+serviceAnnotations: {}
+tolerations: {}
+resources: {}
+patroni: {}
+logicalBackup:
+  enabled: false
+  schedule: "30 00 * * *"
+connectionPooler: {}
+sidecars: {}
+teamId: "main"
+nodeAffinity: {}

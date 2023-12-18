@@ -1,0 +1,28 @@
+labels: {}
+
+repository:
+  url: YOUR_INFRA_REPO_URL
+  revision: master
+  env_chart: argocd/charts/environment
+  envs_chart: argocd/charts/environments
+
+root:
+  enabled: true
+  labels: {}
+  revision:
+  finalizers: {}
+  syncPolicy: {}
+
+envs: {}
+#  gcp-prd:
+#    enabled: true
+#    labels: {}
+#    revision:
+#    finalizers: {}
+#    syncPolicy: {}
+#  gcp-int:
+#    enabled: true
+#    labels: {}
+#    revision:
+#    finalizers: {}
+#    syncPolicy: {}

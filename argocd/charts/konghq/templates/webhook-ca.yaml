@@ -1,0 +1,34 @@
+{{- if .Values.kong.ingressController.admissionWebhook.useCertManager }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  labels:
+    {{- include "kong.metaLabels" . | nindent 4 }}  
+    {{- with .Values.commonLabels }}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
+  name: {{ include "kong.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    {{- include "kong.metaLabels" . | nindent 4 }}  
+    {{- with .Values.commonLabels }}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
+  name: "konghq-webhook"
+  namespace: {{ include "common.names.namespace" . | quote }}
+spec:
+  commonName: {{ template "kong.service.validationWebhook" . }}
+  dnsNames:
+    - {{ printf "%s.%s.svc" (include "kong.service.validationWebhook" .) (include "common.names.namespace" .) }}
+    - {{ printf "%s.%s.svc.cluster.local" (include "kong.service.validationWebhook" .) (include "common.names.namespace" .) }}
+  issuerRef:
+    kind: Issuer
+    name: {{ include "kong.fullname" . }}
+  secretName: "konghq-webhook"
+{{- end }}

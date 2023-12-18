@@ -1,0 +1,14 @@
+users: {}
+#  someuser:
+#    enabled: true
+#    cluster:
+#      name: rmq-gcp-prd
+#      namespace: rabbitmq
+#    tags:
+#      - policymaker
+#    vhosts:
+#      someuser:
+#        permissions:
+#          write: ".*"
+#          configure: ".*"
+#          read: ".*"

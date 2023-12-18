@@ -1,0 +1,18 @@
+cluster_issuers:
+  letsencrypt:
+    acme:
+      server: https://acme-v02.api.letsencrypt.org/directory
+      email: sre@exampleco.com
+      privateKeySecretRef:
+        name: letsencrypt
+      solvers:
+      - selector:
+          dnsZones:
+          - "int.exampleco.com"
+        http01:
+          ingress:
+            ingressClassName: konghq-gcp-int
+
+
+cert-manager:
+  enabled: true

@@ -1,0 +1,11 @@
+fullnameOverride: ""
+nameOverride: ""
+prometheusSelector: {}
+annotations: {}
+replicas: 1
+persistence: {}
+tolerations: {}
+affinity: {}
+override: {}
+vhosts: {}
+serviceMonitor: {}

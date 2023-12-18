@@ -1,0 +1,9 @@
+dependencies:
+- name: rabbitmq-cluster
+  repository: file://../chart_deps/rabbitmq/rabbitmq-cluster/
+  version: 0.1.0
+- name: rabbitmq-cluster-operator
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 3.8.1
+digest: sha256:daec9ce1b82d5d4574bb720a760638ee802e483e21a6bafe33d0c99417de6edf
+generated: "2023-09-26T20:46:57.738074111+03:00"

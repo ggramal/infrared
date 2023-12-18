@@ -1,0 +1,28 @@
+{{- range $plugin := .Values.plugins -}}
+{{- if and ($plugin.plugin_name) ($plugin.name) -}}
+---
+apiVersion: configuration.konghq.com/v1
+{{- if $plugin.global }}
+kind: KongClusterPlugin
+{{- else}}
+kind: KongPlugin
+{{- end}}
+metadata:
+  name: {{ $plugin.name }}
+  labels:
+{{- if $plugin.global }}
+    global: "true"
+{{- end }}
+{{ include "kong-plugins.labels" $ | indent 4 }}
+{{- with $plugin.annotations }}
+  annotations:
+{{- toYaml . | nindent 4 }}
+{{- end }}
+disabled: {{ $plugin.disabled | default "false" }}
+plugin: {{ $plugin.plugin_name }}
+{{- with $plugin.config }}
+config:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
+{{ end -}}

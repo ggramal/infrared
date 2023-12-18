@@ -1,0 +1,18 @@
+{{- if .Values.probes }}
+apiVersion: v1
+kind: List
+items:
+{{- range $probe_name, $probe_obj := .Values.probes }}
+{{- if $probe_obj.enabled }}
+  - apiVersion: monitoring.coreos.com/v1
+    kind: Probe
+    metadata:
+      name: {{ $probe_name }}
+      labels:
+{{ include "probes.labels" $ | indent 8 }}
+        {{- toYaml $probe_obj.selector | nindent 8 }}
+    spec:
+      {{- toYaml $probe_obj.spec | nindent 6 }}
+{{- end }}
+{{- end }}
+{{- end }}

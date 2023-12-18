@@ -1,0 +1,10 @@
+dev:
+  enabled: true
+  fullnameOverride: "thanos-gcp-dev-dev"
+  existingObjstoreSecret: "thanos"
+  compactor:
+    enabled: true
+    serviceAccount:
+      create: true
+      annotations:
+        iam.gke.io/gcp-service-account: thanos@exampleco-development.iam.gserviceaccount.com

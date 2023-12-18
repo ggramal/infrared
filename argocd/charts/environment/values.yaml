@@ -1,0 +1,30 @@
+labels: {}
+
+env:
+  name: YOUR_ENV_NAME_GOES_HERE
+  server: YOUR_K8S_API_URL
+
+repository:
+  url: YOUR_INFRA_REPO_URL
+  charts: argocd/charts
+  envs: argocd/environments
+  envs_from_charts: ../../environments/
+  revision: master
+
+manifests:
+  enabled: false
+  directory: {}
+  revision:
+  labels: {}
+  finalizers: {}
+  syncPolicy: {}
+chart_apps: {}
+#  argocd:
+#    enabled: false
+#    chart: argocd/charts/argocd
+#    name: omega-argocd
+#    directory: {}
+#    revision:
+#    labels: {}
+#    finalizers: {}
+#    syncPolicy: {}

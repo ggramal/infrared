@@ -1,0 +1,14 @@
+apiVersion: v2
+name: argocd
+version: 1.0.0
+dependencies:
+  #https://github.com/argoproj/argo-helm/tree/argo-cd-5.46.7/charts/argo-cd
+  - name: argo-cd
+    version: 5.46.7
+    repository: https://argoproj.github.io/argo-helm
+    condition: argo-cd.enabled
+  - name: certificates
+    version: 0.1.0
+    repository: file://../chart_deps/security/certificates
+    alias: certificates
+    condition: certificates.enabled

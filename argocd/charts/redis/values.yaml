@@ -1,0 +1,5 @@
+redis-operator:
+  enabled: false
+
+redis-main:
+  enabled: false

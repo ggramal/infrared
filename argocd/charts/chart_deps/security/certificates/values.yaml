@@ -1,0 +1,10 @@
+renewBefore: 1440h0m0s #60 days
+certs: []
+#- name: somecert
+#  namespace: argocd
+#  secretName: somecert
+#  dnsNames:
+#  - "service.example.com"
+#  issuerRef:
+#    name: letsencrypt
+#    kind: ClusterIssuer

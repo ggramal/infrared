@@ -1,0 +1,33 @@
+nameOverride: ""
+fullnameOverride: ""
+
+configs: {}
+#  someconfigname:
+#    selector:
+#      alertmanager: coolAlertManager
+#    spec:
+#      https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#alertmanagerconfigspec
+#      receivers:
+#        - name: Reciever1
+#          slackConfigs:
+#            - sendResolved: true
+#              apiURL:
+#                name: secret
+#                key:  key
+#              channel: "#OMG_WTF"
+#              title: 'SOMETHING IS WRONG'
+#              text: >-
+#                {{ range .Alerts }}
+#                    *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+#                    *Description:* {{ .Annotations.description }}
+#                    *Details:*
+#                    {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+#                    {{ end }}
+#                {{ end }}
+#      route:
+#        receiver: 'Reciver1'
+#        groupWait: 30s
+#        groupInterval: 5m
+#        repeatInterval: 3h
+#        groupBy: [env, alertname]
+#        routes: []

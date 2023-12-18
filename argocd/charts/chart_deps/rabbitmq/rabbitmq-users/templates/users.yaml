@@ -1,0 +1,17 @@
+{{- range $user_name, $user_obj := .Values.users }}
+{{- if and $user_obj.enabled }}
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: User
+metadata:
+  name: {{ $user_name }}
+spec:
+  {{- with $user_obj.tags }}
+  tags:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rabbitmqClusterReference:
+    name: {{ tpl ($user_obj.cluster.name) $ }}
+    namespace: {{ $user_obj.cluster.namespace  | default $.Release.Namespace }}
+{{- end }}
+{{- end }}

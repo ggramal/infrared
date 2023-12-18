@@ -1,0 +1,63 @@
+int:
+  enabled: true
+  fullnameOverride: "thanos-gcp-int-int"
+  existingObjstoreSecret: "thanos"
+  compactor:
+    enabled: true
+    serviceAccount:
+      create: true
+      annotations:
+        iam.gke.io/gcp-service-account: thanos@exampleco-internal.iam.gserviceaccount.com
+  storegateway:
+    enabled: true
+    serviceAccount:
+      create: true
+      annotations:
+        iam.gke.io/gcp-service-account: thanos@exampleco-internal.iam.gserviceaccount.com
+  query:
+    enabled: true
+    dnsDiscovery:
+      enabled: false
+    stores:
+      - "thanos-gcp-int-int-storegateway:10901"
+      - "thanos-gcp-int-prd-storegateway:10901"
+      - "thanos-gcp-int-prd-query-grpc:10901"
+      - "thanos-gcp-int-dev-storegateway:10901"
+      - "thanos-gcp-int-dev-query-grpc:10901"
+      - "prometheus-gcp-int-prometheus-main-thanos:8080"
+prd:
+  enabled: true
+  fullnameOverride: "thanos-gcp-int-prd"
+  existingObjstoreSecret: "thanos-prd"
+  storegateway:
+    enabled: true
+    serviceAccount:
+      create: true
+      annotations:
+        iam.gke.io/gcp-service-account: thanos@exampleco-internal.iam.gserviceaccount.com
+  query:
+    enabled: true
+    dnsDiscovery:
+      enabled: false
+    stores:
+      - "thanos.prd.exampleco.com:443"
+    extraFlags:
+      - "--grpc-client-tls-secure"
+dev:
+  enabled: true
+  fullnameOverride: "thanos-gcp-int-dev"
+  existingObjstoreSecret: "thanos-dev"
+  storegateway:
+    enabled: true
+    serviceAccount:
+      create: true
+      annotations:
+        iam.gke.io/gcp-service-account: thanos@exampleco-internal.iam.gserviceaccount.com
+  query:
+    enabled: true
+    dnsDiscovery:
+      enabled: false
+    stores:
+      - "thanos.dev.exampleco.com:443"
+    extraFlags:
+      - "--grpc-client-tls-secure"

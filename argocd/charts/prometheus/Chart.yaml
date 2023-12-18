@@ -1,0 +1,71 @@
+apiVersion: v2
+name: prometheus
+description: prometheus stack
+
+# A chart can be either an 'application' or a 'library' chart.
+#
+# Application charts are a collection of templates that can be packaged into versioned archives
+# to be deployed.
+#
+# Library charts provide useful utilities or functions for the chart developer. They're included as
+# a dependency of application charts to inject those utilities and functions into the rendering
+# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.1.0
+
+dependencies:
+  - name: kong-plugins
+    version: 0.1.0
+    repository: file://../chart_deps/konghq/plugins
+    alias: kong-plugins
+    condition: kong-plugins.enabled
+  - name: prometheus-rules
+    version: 0.1.0
+    repository: file://../chart_deps/prometheus/prometheus-rules
+    condition: prometheus-rules.enabled
+  - name: alertmanager-configs
+    version: 0.1.0
+    repository: file://../chart_deps/prometheus/alertmanager-configs
+    condition: alertmanager-configs.enabled
+  - name: probes
+    version: 0.1.0
+    repository: file://../chart_deps/prometheus/probes
+    alias: probes
+    condition: probes.enabled
+  - name: prometheus-operated
+    repository: file://../chart_deps/prometheus/prometheus-operated
+    version: 0.1.0
+    alias: prometheus-main
+    condition: prometheus-main.enabled
+  - name: alertmanager-operated
+    repository: file://../chart_deps/prometheus/alertmanager-operated
+    version: 0.1.0
+    alias: alertmanager-main
+    condition: alertmanager-main.enabled
+  #https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-postgres-exporter
+  - name: prometheus-postgres-exporter
+    repository: file://../chart_deps/prometheus/postgres-exporter
+    version: 5.0.0
+    alias: prometheus-postgres-exporter
+    condition: prometheus-postgres-exporter.enabled
+  #https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus-blackbox-exporter
+  - name: prometheus-blackbox-exporter
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 8.2.0
+    alias: prometheus-blackbox-exporter
+    condition: prometheus-blackbox-exporter.enabled
+  #https://github.com/bitnami/charts/tree/main/bitnami/kube-state-metrics
+  - name: kube-state-metrics
+    version: 3.1.6
+    repository: https://charts.bitnami.com/bitnami
+    condition: kube-state-metrics.enabled
+  #https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+  - name: kube-prometheus-stack
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 47.6.1
+    alias: operator
+    condition: operator.enabled

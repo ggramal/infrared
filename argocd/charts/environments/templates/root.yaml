@@ -1,0 +1,38 @@
+{{- with index .Values "root" -}}
+{{- $env_name := "root" }}
+{{- if .enabled -}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $env_name }}
+  namespace: argocd
+  {{- with .finalizers }}
+  finalizers:
+  {{- toYaml . | nindent 6 }}
+  {{- end }}
+  labels:
+  {{- with $.Values.labels }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .labels }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  project: default
+  source:
+    path: {{ $.Values.repository.envs_chart }}
+    repoURL: {{ $.Values.repository.url }}
+    targetRevision: {{ .revision | default $.Values.repository.revision }}
+    helm:
+      valueFiles:
+        - ../../envs.yaml
+  {{- with .syncPolicy }}
+  syncPolicy:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

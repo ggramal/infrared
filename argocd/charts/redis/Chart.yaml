@@ -1,0 +1,15 @@
+apiVersion: v2
+name: redis
+version: 0.1.0
+dependencies:
+  #https://github.com/spotahome/redis-operator/tree/v1.2.4/charts/redisoperator
+  - name: redis-operator
+    version: 3.3.0
+    alias: redis-operator
+    condition: redis-operator.enabled
+    repository: https://spotahome.github.io/redis-operator
+  - name: redis-operated
+    version: 0.1.0
+    repository: file://../chart_deps/redis/redis-operated
+    alias: redis-main
+    condition: redis-main.enabled

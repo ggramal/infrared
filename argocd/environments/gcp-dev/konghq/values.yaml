@@ -1,0 +1,113 @@
+kong-plugins:
+  enabled: true
+  plugins:
+    - name: prometheus
+      plugin_name: prometheus
+      global: True
+      annotations:
+        kubernetes.io/ingress.class: konghq-gcp-dev
+      config:
+        status_code_metrics: true
+        latency_metrics: true
+        bandwidth_metrics: true
+        upstream_health_metrics: true
+
+kong:
+  env:
+    database: "off"
+    nginx_worker_processes: "1"
+    nginx_main_worker_processes: "1"
+    headers: "latency_tokens,X-Kong-Upstream-Status"
+    nginx_upstream_keepalive_timeout: "302s"
+    nginx_upstream_keepalive_requests: "1000"
+    nginx_http_client_body_buffer_size: "2m"
+    nginx_proxy_client_body_timeout: "302s"
+    nginx_proxy_client_header_timeout: "302s"
+    nginx_proxy_proxy_send_timeout: "302s"
+    nginx_proxy_proxy_read_timeout: "302s"
+    anonymous_reports: "off"
+    admin_access_log: /dev/null
+    admin_gui_access_log: /dev/stdout
+    portal_api_error_log: /dev/stderr
+    portal_api_access_log: /dev/stdout
+    proxy_access_log: "/dev/stdout json"
+    nginx_http_log_format: 'json ''{"@type": "nginx", ''
+      ''"http_host": "$http_host", ''
+      ''"remote_addr": "$remote_addr", ''
+      ''"time_local": "$time_local", ''
+      ''"request": "$request", ''
+      ''"request_length": "$request_length", ''
+      ''"content_length": "$content_length", ''
+      ''"connection_requests": "$connection_requests", ''
+      ''"status": "$status", ''
+      ''"body_bytes_sent": "$body_bytes_sent", ''
+      ''"http_referer": "$http_referer", ''
+      ''"http_user_agent": "$http_user_agent", ''
+      ''"http_x_forwarded_for": "$http_x_forwarded_for", ''
+      ''"request_time": "$request_time", ''
+      ''"upstream_response_time": "$upstream_response_time", ''
+      ''"upstream_addr": "$upstream_addr" }'''
+  proxy:
+    externalTrafficPolicy: Local
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: "*.dev.exampleco.com."
+      external-dns.alpha.kubernetes.io/ttl: "60"
+  ingressController:
+    admissionWebhook:
+      enabled: true
+      failurePolicy: Fail
+      port: 8080
+      certificate:
+        provided: true
+        secretName: konghq-webhook
+      namespaceSelector: {}
+      annotations:
+        cert-manager.io/inject-ca-from: konghq/konghq-webhook
+      useCertManager: true
+    ingressClass: konghq-gcp-dev
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+      requests:
+        cpu: 0.5
+  resources:
+    limits:
+      cpu: 2
+      memory: 2Gi
+    requests:
+      cpu: 0.5
+      memory: 1Gi
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - topologyKey: "kubernetes.io/hostname"
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: kong
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    ## targetCPUUtilizationPercentage only used if the cluster doesn't support autoscaling/v2beta
+    targetCPUUtilizationPercentage:
+    ## Otherwise for clusters that do support autoscaling/v2beta, use metrics
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 130 # 0.65 cores
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: "1"
+
+  serviceMonitor:
+    # Specifies whether ServiceMonitor for Prometheus operator should be created
+    enabled: true
+    # interval: 10s
+    # Specifies namespace, where ServiceMonitor should be installed
+    # namespace: monitoring
+    labels:
+      prometheus: main

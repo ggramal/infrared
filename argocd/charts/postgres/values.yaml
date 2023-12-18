@@ -1,0 +1,11 @@
+postgres-operator:
+  enabled: false
+
+postgres-main:
+  enabled: false
+
+postgres-pod-envs:
+  #This is needed by default for all wal-e cloned instances
+  #Without this wal-e clone will not work due to this
+  #https://github.com/zalando/spilo/blob/3.0-p1/postgres-appliance/scripts/restore_command.sh#L39
+  CLONE_WALG_DOWNLOAD_CONCURRENCY: "2"

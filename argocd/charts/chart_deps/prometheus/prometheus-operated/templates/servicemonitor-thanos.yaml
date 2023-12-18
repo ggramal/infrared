@@ -1,0 +1,39 @@
+{{- if .Values.thanosServiceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: thanos
+{{- if .Values.thanosServiceMonitor.labels }}
+    {{ toYaml .Values.thanosServiceMonitor.labels | indent 4 }}
+    {{- include "prometheus-operated.labels" . | nindent 4 }}
+    {{- if .Values.thanosServiceMonitor.prometheusSelector }}
+    {{ tpl (toYaml .Values.thanosServiceMonitor.prometheusSelector) . | nindent 4}}
+    {{- end }}
+{{- else }}
+    {{- if .Values.thanosServiceMonitor.prometheusSelector }}
+    {{ tpl (toYaml .Values.thanosServiceMonitor.prometheusSelector) . | nindent 4}}
+    {{- end }}
+    {{- include "prometheus-operated.labels" . | nindent 4 }}
+{{- end }}
+  name: {{ template "prometheus-operated.fullname" . }}-thanos
+spec:
+  {{- with .Values.thanosServiceMonitor.endpoints }}
+  endpoints:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  jobLabel: {{ template "prometheus-operated.fullname" . }}-thanos
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app: thanos
+    {{- include "prometheus-operated.serviceSelectorLabels" . | nindent 6 }}
+{{- if .Values.thanosServiceMonitor.targetLabels }}
+  targetLabels:
+{{- range .Values.thanosServiceMonitor.targetLabels }}
+  - {{ . }}
+{{- end }}
+{{- end }}
+{{- end }}

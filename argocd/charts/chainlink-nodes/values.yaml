@@ -1,0 +1,19 @@
+global:
+  image:
+    tag: 2.1.1
+node-1:
+  enabled: false
+node-2:
+  enabled: false
+node-3:
+  enabled: false
+node-4:
+  enabled: false
+node-5:
+  enabled: false
+node-6:
+  enabled: false
+node-7:
+  enabled: false
+node-8:
+  enabled: false

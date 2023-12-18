@@ -1,0 +1,44 @@
+apiVersion: v2
+name: chainlink-nodes
+version: 1.0.0
+dependencies:
+  - name: chainlink
+    version: 0.1.0
+    repository: file://../chart_deps/blockchain/chainlink
+    alias: node-1
+    condition: node-1.enabled
+  - name: chainlink
+    version: 0.1.0
+    repository: file://../chart_deps/blockchain/chainlink
+    alias: node-2
+    condition: node-2.enabled
+  - name: chainlink
+    version: 0.1.0
+    repository: file://../chart_deps/blockchain/chainlink
+    alias: node-3
+    condition: node-3.enabled
+  - name: chainlink
+    version: 0.1.0
+    repository: file://../chart_deps/blockchain/chainlink
+    alias: node-4
+    condition: node-4.enabled
+  - name: chainlink
+    version: 0.1.0
+    repository: file://../chart_deps/blockchain/chainlink
+    alias: node-5
+    condition: node-5.enabled
+  - name: chainlink
+    version: 0.1.0
+    repository: file://../chart_deps/blockchain/chainlink
+    alias: node-6
+    condition: node-6.enabled
+  - name: chainlink
+    version: 0.1.0
+    repository: file://../chart_deps/blockchain/chainlink
+    alias: node-7
+    condition: node-7.enabled
+  - name: chainlink
+    version: 0.1.0
+    repository: file://../chart_deps/blockchain/chainlink
+    alias: node-8
+    condition: node-8.enabled

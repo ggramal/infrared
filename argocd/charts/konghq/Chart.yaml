@@ -1,0 +1,14 @@
+apiVersion: v2
+name: konghq
+version: 1.0.0
+appVersion: "3.2"
+dependencies:
+  - name: kong-plugins
+    version: 0.1.0
+    repository: file://../chart_deps/konghq/plugins
+    alias: kong-plugins
+    condition: kong-plugins.enabled
+  #https://github.com/Kong/charts/tree/kong-2.22.0/charts/kong
+  - name: kong
+    version: 2.27.0
+    repository: https://charts.konghq.com

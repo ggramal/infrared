@@ -1,0 +1,300 @@
+{{- $serviceMonitorSelector := .Values.prometheus.spec.serviceMonitorSelector |required ".Values.prometheus.spec.serviceMonitorSelector is required" }}
+{{- $podMonitorSelector := .Values.prometheus.spec.podMonitorSelector |required ".Values.prometheus.spec.podMonitorSelector is required" }}
+{{- $probeSelector := .Values.prometheus.spec.probeSelector |required ".Values.prometheus.spec.probeSelector is required" }}
+{{- $ruleSelector := .Values.prometheus.spec.ruleSelector |required ".Values.prometheus.spec.ruleSelector is required" }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  labels:
+{{- if .Values.prometheus.labels }}
+{{ toYaml .Values.prometheus.labels | indent 4 }}
+    {{- include "prometheus-operated.labels" . | nindent 4 }}
+{{- else }}
+    {{- include "prometheus-operated.labels" . | nindent 4 }}
+{{- end }}
+  name: {{ template "prometheus-operated.fullname" . }}
+spec:
+  {{- with .Values.prometheus.spec.podMetadata }}
+  podMetadata:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $serviceMonitorSelector }}
+  serviceMonitorSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.serviceMonitorNamespaceSelector }}
+  serviceMonitorNamespaceSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- else }}
+  serviceMonitorNamespaceSelector: {}
+  {{- end }}
+  {{- with $podMonitorSelector }}
+  podMonitorSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.podMonitorNamespaceSelector }}
+  podMonitorNamespaceSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- else }}
+  podMonitorNamespaceSelector: {}
+  {{- end }}
+  {{- with $probeSelector }}
+  probeSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.probeNamespaceSelector }}
+  probeNamespaceSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- else }}
+  probeNamespaceSelector: {}
+  {{- end }}
+  {{- with .Values.prometheus.spec.scrapeConfigSelector }}
+  scrapeConfigSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.scrapeConfigNamespaceSelector }}
+  scrapeConfigNamespaceSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- else }}
+  scrapeConfigNamespaceSelector: {}
+  {{- end }}
+  paused: {{ .Values.prometheus.spec.paused }} 
+  image: {{ .Values.prometheus.spec.image }}
+  version: {{ .Values.prometheus.spec.version }}
+  imagePullPolicy: {{ .Values.prometheus.spec.imagePullPolicy }}
+  {{- with .Values.prometheus.spec.imagePullSecrets }}
+  imagePullSecrets:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  replicas: {{ .Values.prometheus.spec.replicas }}
+  shards: {{ .Values.prometheus.spec.shards }}
+  {{- if .Values.prometheus.spec.replicaExternalLabelName }}
+  replicaExternalLabelName: {{ .Values.prometheus.spec.replicaExternalLabelName }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.prometheusExternalLabelName }}
+  prometheusExternalLabelName: {{ .Values.prometheus.spec.prometheusExternalLabelName }}
+  {{- end }}
+  logLevel: {{ .Values.prometheus.spec.logLevel }}
+  logFormat: {{ .Values.prometheus.spec.logFormat }}
+  scrapeInterval: {{ .Values.prometheus.spec.scrapeInterval }}
+  scrapeTimeout: {{ .Values.prometheus.spec.scrapeTimeout }}
+  {{- with .Values.prometheus.spec.externalLabels }}
+  externalLabels:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  enableRemoteWriteReceiver: {{ .Values.prometheus.spec.enableRemoteWriteReceiver }}
+  {{- with .Values.prometheus.spec.enableFeatures }}
+  enableFeatures:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.externalUrl }}
+  externalUrl: {{ .Values.prometheus.spec.externalUrl }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.routePrefix }}
+  routePrefix: {{ .Values.prometheus.spec.routePrefix }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.storage }}
+  storage:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.volumes }}
+  volumes:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.volumeMounts }}
+  volumeMounts:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.persistentVolumeClaimRetentionPolicy }}
+  persistentVolumeClaimRetentionPolicy:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.web }}
+  web:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.resources }}
+  resources:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.nodeSelector }}
+  nodeSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  serviceAccountName: {{ include "prometheus-operated.serviceAccountName" . }}
+  {{- with .Values.prometheus.spec.secrets }}
+  secrets:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.configMaps }}
+  configMaps:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.affinity }}
+  affinity:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.tolerations }}
+  tolerations:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.topologySpreadConstraints }}
+  topologySpreadConstraints:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.remoteWrite }}
+  remoteWrite:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.securityContext }}
+  securityContext:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  listenLocal: {{ .Values.prometheus.spec.listenLocal }}
+  {{- with .Values.prometheus.spec.containers }}
+  containers:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.initContainers }}
+  initContainers:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.additionalScrapeConfigs }}
+  additionalScrapeConfigs:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.apiserverConfig }}
+  apiserverConfig:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.priorityClassName }}
+  priorityClassName: {{ .Values.prometheus.spec.priorityClassName }}
+  {{- end }}
+  portName: {{ .Values.prometheus.spec.portName }}
+  {{- with .Values.prometheus.spec.arbitraryFSAccessThroughSMs }}
+  arbitraryFSAccessThroughSMs:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  overrideHonorLabels: {{ .Values.prometheus.spec.overrideHonorLabels }}
+  overrideHonorTimestamps: {{ .Values.prometheus.spec.overrideHonorTimestamps }}
+  ignoreNamespaceSelectors: {{ .Values.prometheus.spec.ignoreNamespaceSelectors }}
+  enforcedNamespaceLabel: {{ .Values.prometheus.spec.enforcedNamespaceLabel }}
+  {{- with .Values.prometheus.spec.enforcedTargetLimit }}
+  enforcedTargetLimit:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.enforcedLabelLimit }}
+  enforcedLabelLimit: {{ .Values.prometheus.spec.enforcedLabelLimit }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.enforcedLabelNameLengthLimit }}
+  enforcedLabelNameLengthLimit: {{ .Values.prometheus.spec.enforcedLabelNameLengthLimit }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.enforcedLabelValueLengthLimit }}
+  enforcedLabelValueLengthLimit: {{ .Values.prometheus.spec.enforcedLabelValueLengthLimit }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.enforcedKeepDroppedTargets }}
+  enforcedKeepDroppedTargets: {{ .Values.prometheus.spec.enforcedKeepDroppedTargets }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.enforcedBodySizeLimit }}
+  enforcedBodySizeLimit: {{ .Values.prometheus.spec.enforcedBodySizeLimit }}
+  {{- end }}
+  minReadySeconds: {{ .Values.prometheus.spec.minReadySeconds }}
+  {{- with .Values.prometheus.spec.hostAliases }}
+  hostAliases:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.additionalArgs }}
+  additionalArgs:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  walCompression: {{ .Values.prometheus.spec.walCompression }}
+  {{- with .Values.prometheus.spec.excludedFromEnforcement }}
+  excludedFromEnforcement:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  hostNetwork: {{ .Values.prometheus.spec.hostNetwork }}
+  {{- with .Values.prometheus.spec.podTargetLabels }}
+  podTargetLabels:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.tracingConfig }}
+  tracingConfig:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.bodySizeLimit }}
+  bodySizeLimit: {{ .Values.prometheus.spec.bodySizeLimit }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.sampleLimit }}
+  sampleLimit: {{ .Values.prometheus.spec.sampleLimit }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.targetLimit }}
+  targetLimit: {{ .Values.prometheus.spec.targetLimit }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.labelLimit }}
+  labelLimit: {{ .Values.prometheus.spec.labelLimit }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.labelNameLengthLimit }}
+  labelNameLengthLimit: {{ .Values.prometheus.spec.labelNameLengthLimit }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.labelValueLengthLimit }}
+  labelValueLengthLimit: {{ .Values.prometheus.spec.labelValueLengthLimit }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.keepDroppedTargets }}
+  keepDroppedTargets: {{ .Values.prometheus.spec.keepDroppedTargets }}
+  {{- end }}
+  retention: {{ .Values.prometheus.spec.retention }}
+  disableCompaction: {{ .Values.prometheus.spec.disableCompaction }}
+  {{- with .Values.prometheus.spec.rules }}
+  rules:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.prometheusRulesExcludedFromEnforce }}
+  prometheusRulesExcludedFromEnforce:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.ruleSelector }}
+  ruleSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.ruleNamespaceSelector }}
+  ruleNamespaceSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.query }}
+  query:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.alerting }}
+  alerting:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.additionalAlertRelabelConfigs }}
+  additionalAlertRelabelConfigs:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.additionalAlertManagerConfigs }}
+  additionalAlertManagerConfigs:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.remoteRead }}
+  remoteRead:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.thanos }}
+  thanos:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- if .Values.prometheus.spec.queryLogFile }}
+  queryLogFile: {{ .Values.prometheus.spec.queryLogFile }}
+  {{- end }}
+  {{- with .Values.prometheus.spec.exemplars }}
+  exemplars:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  evaluationInterval: {{ .Values.prometheus.spec.evaluationInterval }}
+  enableAdminAPI: {{ .Values.prometheus.spec.enableAdminAPI }}
+  {{- with .Values.prometheus.spec.tsdb }}
+  tsdb:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}

@@ -1,0 +1,15 @@
+apiversion: v2
+name: rabbitmq
+version: 0.1.0
+dependencies:
+  - name: rabbitmq-cluster
+    version: 0.1.0
+    repository: file://../chart_deps/rabbitmq/rabbitmq-cluster/
+    alias: rabbitmq-main
+    condition: rabbitmq-main.enabled
+  #https://github.com/bitnami/charts/tree/main/bitnami/rabbitmq-cluster-operator
+  - name: rabbitmq-cluster-operator
+    version: 3.8.1
+    repository: oci://registry-1.docker.io/bitnamicharts
+    alias: rabbitmq-cluster-operator
+    condition: rabbitmq-cluster-operator.enabled

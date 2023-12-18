@@ -1,0 +1,15 @@
+dependencies:
+- name: grafana-dashboards
+  repository: file://../chart_deps/grafana/dashboards
+  version: 0.1.0
+- name: grafana-datasources
+  repository: file://../chart_deps/grafana/datasources
+  version: 0.1.0
+- name: grafana-operated
+  repository: file://../chart_deps/grafana/grafana-operated
+  version: 0.1.0
+- name: grafana-operator
+  repository: oci://ghcr.io/grafana-operator/helm-charts
+  version: v5.3.0
+digest: sha256:dc16dcd2430bb5d2b18074f5f217bc2c593adb404ea876d72ccde932e1ed759e
+generated: "2023-08-30T14:00:27.938180192+03:00"

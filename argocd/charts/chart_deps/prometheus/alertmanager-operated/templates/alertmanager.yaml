@@ -1,0 +1,149 @@
+{{- $alertmanagerConfigSelector := .Values.alertmanager.spec.alertmanagerConfigSelector |required ".Values.alertmanager.spec.alertmanagerConfigSelector is required" }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Alertmanager
+metadata:
+  labels:
+{{- if .Values.alertmanager.labels }}
+{{ toYaml .Values.alertmanager.labels | indent 4 }}
+    {{- include "alertmanager-operated.labels" . | nindent 4 }}
+{{- else }}
+    {{- include "alertmanager-operated.labels" . | nindent 4 }}
+{{- end }}
+  name: {{ template "alertmanager-operated.fullname" . }}
+spec:
+  {{- with .Values.alertmanager.spec.podMetadata }}
+  podMetadata:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $alertmanagerConfigSelector }}
+  alertmanagerConfigSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.alertmanagerConfigNamespaceSelector }}
+  alertmanagerConfigNamespaceSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- else }}
+  alertmanagerConfigNamespaceSelector: {}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.alertmanagerConfigMatcherStrategy }}
+  alertmanagerConfigMatcherStrategy:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  image: {{ .Values.alertmanager.spec.image }}
+  imagePullPolicy: {{ .Values.alertmanager.spec.imagePullPolicy }}
+  version: {{ .Values.alertmanager.spec.version }}
+  {{- with .Values.alertmanager.spec.imagePullSecrets }}
+  imagePullSecrets:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.secrets }}
+  secrets:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.configMaps }}
+  configMaps:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- if .Values.alertmanager.spec.configSecret }}
+  configSecret: {{ .Values.alertmanager.spec.configSecret }}
+  {{- else }}
+  configSecret: {{ include "alertmanager-operated.fullname" . }}
+  {{- end }}
+  logLevel: {{ .Values.alertmanager.spec.logLevel }}
+  logFormat: {{ .Values.alertmanager.spec.logFormat }}
+  replicas: {{ .Values.alertmanager.spec.replicas }}
+  retention: {{ .Values.alertmanager.spec.retention }}
+  {{- with .Values.alertmanager.spec.storage }}
+  storage:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.volumes }}
+  volumes:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.volumeMounts }}
+  volumeMounts:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- if .Values.alertmanager.spec.externalUrl }}
+  externalUrl: {{ .Values.alertmanager.spec.externalUrl }}
+  {{- end }}
+  {{- if .Values.alertmanager.spec.routePrefix }}
+  routePrefix: {{ .Values.alertmanager.spec.routePrefix }}
+  {{- end }}
+  paused: {{ .Values.alertmanager.spec.paused }} 
+  {{- with .Values.alertmanager.spec.nodeSelector }}
+  nodeSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.resources }}
+  resources:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.affinity }}
+  affinity:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.tolerations }}
+  tolerations:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.topologySpreadConstraints }}
+  topologySpreadConstraints:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.securityContext }}
+  securityContext:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  serviceAccountName: {{ include "alertmanager-operated.serviceAccountName" . }}
+  listenLocal: {{ .Values.alertmanager.spec.listenLocal }}
+  {{- with .Values.alertmanager.spec.containers }}
+  containers:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.initContainers }}
+  initContainers:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- if .Values.alertmanager.spec.priorityClassName }}
+  priorityClassName: {{ .Values.alertmanager.spec.priorityClassName }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.additionalPeers }}
+  additionalPeers:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- if .Values.alertmanager.spec.clusterAdvertiseAddress }}
+  clusterAdvertiseAddress: {{ .Values.alertmanager.spec.clusterAdvertiseAddress }}
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- if .Values.alertmanager.spec.clusterGossipInterval }}
+  clusterGossipInterval: {{ .Values.alertmanager.spec.clusterGossipInterval  }}
+  {{- end }}
+  {{- if .Values.alertmanager.spec.clusterPushpullInterval }}
+  clusterPushpullInterval: {{ .Values.alertmanager.spec.clusterPushpullInterval  }}
+  {{- end }}
+  {{- if .Values.alertmanager.spec.clusterPeerTimeout }}
+  clusterPeerTimeout: {{ .Values.alertmanager.spec.clusterPeerTimeout  }}
+  {{- end }}
+  portName: {{ .Values.alertmanager.spec.portName }}
+  {{- if .Values.alertmanager.spec.forceEnableClusterMode }}
+  forceEnableClusterMode: {{ .Values.alertmanager.spec.forceEnableClusterMode  }}
+  {{- end }}
+  minReadySeconds: {{ .Values.alertmanager.spec.minReadySeconds }}
+  {{- with .Values.alertmanager.spec.hostAliases }}
+  hostAliases:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.web }}
+  web:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.alertmanager.spec.alertmanagerConfiguration }}
+  alertmanagerConfiguration:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- if .Values.alertmanager.spec.automountServiceAccountToken }}
+  automountServiceAccountToken: {{ .Values.alertmanager.spec.automountServiceAccountToken }}
+  {{- end }}

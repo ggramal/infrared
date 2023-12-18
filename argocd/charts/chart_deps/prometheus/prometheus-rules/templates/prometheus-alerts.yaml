@@ -1,0 +1,85 @@
+{{- $releasename := .Release.Name }}
+{{- range $name, $alert := .Values.PrometheusAlerts }}
+{{- $namespace := $.Release.Namespace }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ $releasename }}-{{ $name }}-alerts
+  labels:
+{{- include "prometheus-rules.labels" $ | nindent 4 }}
+    {{- toYaml $alert.selector | nindent 4 }}
+{{- $tm := "30m" }}
+spec:
+  groups:
+  {{- if .AbsentMetricCritical }}
+    - name: "AbsentMetricCritical"
+      {{- if .AbsentMetricCritical.interval }}
+      interval: {{ .AbsentMetricCritical.interval }}
+      {{- end }}
+      rules:
+  {{- range .AbsentMetricCritical.rules }}
+  {{- $parts := split "{" .metric }}
+        - alert: absent_{{$parts._0}}
+          expr: absent({{.metric}})
+          for: {{$tm}}
+          labels:
+            env: {{ $alert.env }}
+            severity: critical
+            namespace: {{ $namespace }}
+            team: {{ $alert.team }}
+          annotations:
+            summary: |
+              Critical metrics is Absent {{ $name }} {{ .metric }}
+            description: |
+              There are no metric {{.metric}} from {{.source}} in {{ $name }}.
+              Check the source {{.source}} instance and scrape process
+  {{- end }}
+  {{- end }}
+  {{- if .CriticalMetric }}
+    - name: CriticalMetric
+      {{- if .CriticalMetric.interval }}
+      interval: {{ .CriticalMetric.interval }}
+      {{- end }}
+      rules:
+  {{- range .CriticalMetric.rules }}
+        - alert: {{.name}}
+          expr: |
+            {{- .expr | nindent 12}}
+          for: {{ .for }}
+          labels:
+            env: {{ $alert.env }}
+            severity: critical
+            team: {{ $alert.team }}
+            namespace: {{ $namespace }}
+          annotations:
+            summary: |
+              {{- .summary | default .name | nindent 14  }}
+            description: |
+              {{- .description | nindent 14 }}
+  {{- end }}
+  {{- end }}
+  {{- if .WarningMetric }}
+    - name: WarningMetric
+      {{- if .WarningMetric.interval }}
+      interval: {{ .WarningMetric.interval }}
+      {{- end }}
+      rules:
+  {{- range .WarningMetric.rules }}
+        - alert: {{.name}}
+          expr: |
+            {{- .expr | nindent 12}}
+          for: {{ .for }}
+          labels:
+            env: {{ $alert.env }}
+            severity: medium
+            team: {{ $alert.team }}
+            namespace: {{ $namespace }}
+          annotations:
+            summary: |
+              {{- .summary | default .name | nindent 14  }}
+            description: |
+              {{- .description | nindent 14 }}
+  {{- end }}
+  {{- end }}
+{{- end }}

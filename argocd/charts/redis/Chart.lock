@@ -1,0 +1,9 @@
+dependencies:
+- name: redis-operator
+  repository: https://spotahome.github.io/redis-operator
+  version: 3.3.0
+- name: redis-operated
+  repository: file://../chart_deps/redis/redis-operated
+  version: 0.1.0
+digest: sha256:fa5f8f54165a4484852cff7bc500ffd3414e964c9a0ccd93f4d46ea595c4e7e0
+generated: "2023-11-07T18:04:04.891510633+03:00"

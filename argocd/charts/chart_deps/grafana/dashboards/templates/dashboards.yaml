@@ -1,0 +1,68 @@
+{{- range $dshbrd_obj := .Values.dashboards }}
+{{- $enbld := ternary $dshbrd_obj.enabled true ( hasKey $dshbrd_obj "enabled") }}
+{{- if $enbld }}
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  labels:
+{{- include "grafana-dashboards.labels" $ | nindent 4 }}
+  name: {{ $dshbrd_obj.name }}
+spec:
+  {{- if $dshbrd_obj.selector }}
+  instanceSelector:
+    matchLabels:
+    {{- toYaml $dshbrd_obj.selector | nindent 6 }}
+  {{- end }}
+  resyncPeriod: {{ $dshbrd_obj.resyncPeriod | default "30s" }}
+  {{- if $dshbrd_obj.allowCrossNamespaceImport }}
+  allowCrossNamespaceImport: {{ $dshbrd_obj.allowCrossNamespaceImport }}
+  {{- end }}
+  {{- if $dshbrd_obj.jsonnet }}
+  jsonnet: {{ toYaml $dshbrd_obj.jsonnet | nindent 4 }}
+  {{- end }}
+  {{- if $dshbrd_obj.gzipJson }}
+  gzipJson: {{ toYaml $dshbrd_obj.gzipJson | nindent 4 }}
+  {{- end }}
+  {{- if $dshbrd_obj.json }}
+  json: {{ toYaml $dshbrd_obj.json | nindent 4 }}
+  {{- end }}
+  {{- if $dshbrd_obj.folder }}
+  folder: {{ $dshbrd_obj.folder }}
+  {{- end }}
+  {{- if $dshbrd_obj.url }}
+  url: {{ $dshbrd_obj.url }}
+  {{- end }}
+  {{- if $dshbrd_obj.contentCacheDuration }}
+  contentCacheDuration: {{ $dshbrd_obj.contentCacheDuration }}
+  {{- end }}
+  {{- with $dshbrd_obj.datasource }}
+  datasource:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $dshbrd_obj.plugins }}
+  plugins:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $dshbrd_obj.configMapRef }}
+  configMapRef:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $dshbrd_obj.envFrom }}
+  envFrom:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $dshbrd_obj.envs }}
+  envs:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $dshbrd_obj.grafanaCom }}
+  grafanaCom:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $dshbrd_obj.jsonnetLib }}
+  jsonnetLib:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

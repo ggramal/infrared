@@ -1,0 +1,18 @@
+{{- if .Values.configs }}
+apiVersion: v1
+kind: List
+items:
+{{- range $name, $config := .Values.configs }}
+{{- if $config.enabled }}
+  - apiVersion: monitoring.coreos.com/v1alpha1
+    kind: AlertmanagerConfig
+    metadata:
+      name: {{ template "alertmanager-configs.fullname" $ }}-{{ $name }}
+      labels:
+{{ include "alertmanager-configs.labels" $ | indent 8 }}
+        {{- toYaml $config.selector | nindent 8 }}
+    spec:
+      {{- toYaml $config.spec | nindent 6 }}
+{{- end }}
+{{- end }}
+{{- end }}

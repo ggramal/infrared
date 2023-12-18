@@ -1,0 +1,21 @@
+{{- if .Values.vhosts }}
+{{- range $vhost_name, $vhost_obj := .Values.vhosts }}
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Vhost
+metadata:
+  name: {{ $vhost_name }}
+  labels:
+{{- if $vhost_obj.labels }}
+{{ toYaml $vhost_obj.labels | indent 4 }}
+    {{- include "rabbitmq-cluster.labels" $ | nindent 4 }}
+{{- else }}
+    {{- include "rabbitmq-cluster.labels" $ | nindent 4 }}
+{{- end }}
+spec:
+  defaultQueueType: {{ $vhost_obj.default_queue_type | default "classic" }}
+  name: {{ $vhost_name }}
+  rabbitmqClusterReference:
+    name: {{ include "rabbitmq-cluster.fullname" $ }}
+{{- end }}
+{{ end }}

@@ -1,0 +1,27 @@
+sentinel: {}
+redis: {}
+auth: {}
+bootstrapNode: {}
+labelWhitelist: {}
+redis-podmonitor:
+  enabled: false
+sentinel-podmonitor:
+  enabled: false
+
+redisServiceMonitor:
+  enabled: false
+  prometheusSelector: {}
+  labels: {}
+  targetLabels: []
+  endpoints:
+  - port: http-metrics
+    path: /metrics
+
+sentinelServiceMonitor:
+  enabled: false
+  prometheusSelector: {}
+  labels: {}
+  targetLabels: []
+  endpoints:
+  - port: metrics
+    path: /metrics

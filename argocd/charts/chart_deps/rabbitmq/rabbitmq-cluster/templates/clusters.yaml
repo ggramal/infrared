@@ -1,0 +1,38 @@
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: {{ include "rabbitmq-cluster.fullname" . }}
+  {{- with .Values.annotations }}
+  annotations:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+{{- if .Values.labels }}
+{{ toYaml .Values.labels | indent 4 }}
+    {{- include "rabbitmq-cluster.labels" . | nindent 4 }}
+{{- else }}
+    {{- include "rabbitmq-cluster.labels" . | nindent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.replicas | default "1" }}
+  {{- with .Values.resources }}
+  resources:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.persistence }}
+  persistence:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.tolerations }}
+  tolerations:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.affinity }}
+  affinity:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.override }}
+  override:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}

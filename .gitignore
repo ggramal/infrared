@@ -1,0 +1,15 @@
+.idea
+terraform-pre.json
+*.tfstate*
+*.tfstate
+.terraform
+*terraform.tfstate.backup*
+.aws.env
+.aws.profile
+.env
+.*.swp
+debug.tf
+terraform.tfplan
+.terraform/
+.DS_Store
+argocd/charts/**/charts

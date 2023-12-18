@@ -1,0 +1,60 @@
+redis-operator:
+  enabled: true
+  image:
+    tag: v1.2.4
+  monitoring:
+    enabled: true
+    serviceMonitor: true
+    prometheus:
+      name: main
+
+redis-main:
+  enabled: true
+  auth:
+    secretPath: redis-main
+  sentinel:
+    replicas: 3
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        memory: 100Mi
+        cpu: 1200m
+    exporter:
+      enabled: true
+      image: leominov/redis_sentinel_exporter:1.7.1
+  sentinelServiceMonitor:
+    enabled: true
+    prometheusSelector:
+      prometheus: main
+    endpoints:
+    - targetPort: 9355
+      path: /metrics
+  redis:
+    replicas: 3
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 1200m
+        memory: 500Mi
+    exporter:
+      enabled: true
+      image: oliver006/redis_exporter:v1.55.0
+      env:
+      - name: REDIS_USER
+        value: default
+      - name: REDIS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: password
+            name: redis-main
+  redisServiceMonitor:
+    enabled: true
+    prometheusSelector:
+      prometheus: main
+    endpoints:
+    - port: http-metrics
+      path: /metrics

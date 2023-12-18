@@ -1,0 +1,19 @@
+cluster_issuers:
+  letsencrypt:
+    acme:
+      server: https://acme-v02.api.letsencrypt.org/directory
+      email: sre@dexfinannce.com
+      privateKeySecretRef:
+        name: letsencrypt
+      solvers:
+      - selector:
+          dnsZones:
+          - "dev.exampleco.com"
+        http01:
+          ingress:
+            ingressClassName: konghq-gcp-dev
+
+cert-manager:
+  enabled: true
+  cainjector:
+    enabled: true

@@ -1,0 +1,14 @@
+# Default values for kong-plugins.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+# Configur KongPlugins CRD
+
+plugins: []
+#- name: zipkin
+#  global: True
+#  object_name: zipkin-global
+#  config:
+#    http_endpoint: "http://jaeger-collector.default.svc.cluster.local:9411/api/v2/spans"
+#    sample_ratio: 1
+#    default_service_name: "konghq-gcp-prd"
+#    include_credential: "false"

@@ -1,0 +1,91 @@
+int:
+  enabled: false
+  existingObjstoreSecret: ""
+  query:
+    enabled: false
+  queryFrontend:
+    enabled: false
+  bucketweb:
+    enabled: false
+  compactor:
+    enabled: false
+    serviceAccount:
+      create: true
+      annotations: {}
+  storegateway:
+    enabled: false
+  ruler:
+    enabled: false
+  recieve:
+    enabled: false
+  receiveDistributor:
+    enabled: false
+  metrics:
+    enabled: false
+  volumePermissions:
+    enabled: false
+  minio:
+    enabled: false
+  networkPolicy:
+    enabled: false
+prd:
+  enabled: false
+  existingObjstoreSecret: ""
+  query:
+    enabled: false
+  queryFrontend:
+    enabled: false
+  bucketweb:
+    enabled: false
+  compactor:
+    enabled: false
+    serviceAccount:
+      create: true
+      annotations: {}
+  storegateway:
+    enabled: false
+  ruler:
+    enabled: false
+  recieve:
+    enabled: false
+  receiveDistributor:
+    enabled: false
+  metrics:
+    enabled: false
+  volumePermissions:
+    enabled: false
+  minio:
+    enabled: false
+  networkPolicy:
+    enabled: false
+
+dev:
+  enabled: false
+  existingObjstoreSecret: ""
+  query:
+    enabled: false
+  queryFrontend:
+    enabled: false
+  bucketweb:
+    enabled: false
+  compactor:
+    enabled: false
+    serviceAccount:
+      create: true
+      annotations: {}
+  storegateway:
+    enabled: false
+  ruler:
+    enabled: false
+  recieve:
+    enabled: false
+  receiveDistributor:
+    enabled: false
+  metrics:
+    enabled: false
+  volumePermissions:
+    enabled: false
+  minio:
+    enabled: false
+  networkPolicy:
+    enabled: false

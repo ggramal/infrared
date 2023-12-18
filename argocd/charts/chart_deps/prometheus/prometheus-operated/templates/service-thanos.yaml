@@ -1,0 +1,22 @@
+{{- if .Values.thanosService.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "prometheus-operated.fullname" . }}-thanos
+  labels:
+    app: thanos
+    {{- include "prometheus-operated.labels" . | nindent 4 }}
+  {{- with .Values.thanosService.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.thanosService.type }}
+  {{- with .Values.thanosService.ports }}
+  ports:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    {{- include "prometheus-operated.selectorLabels" . | nindent 4 }}
+{{- end }}

@@ -1,0 +1,21 @@
+selector: {}
+
+client: {}
+
+config: {}
+
+deployment: {}
+
+external: {}
+
+ingress: {}
+
+jsonnet: {}
+
+persistentVolumeClaim: {}
+
+route: {}
+
+service: {}
+
+serviceAccount: {}

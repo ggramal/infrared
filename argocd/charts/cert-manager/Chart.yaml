@@ -1,0 +1,15 @@
+apiversion: v2
+name: certificates
+version: 1.0.0
+dependencies:
+  #https://github.com/cert-manager/cert-manager/tree/v1.13.0/deploy/charts/cert-manager
+  - name: cert-manager
+    version: v1.13.0
+    repository: https://charts.jetstack.io
+    alias: cert-manager
+    condition: cert-manager.enabled
+  - name: certificates
+    version: 0.1.0
+    repository: file://../chart_deps/security/certificates
+    alias: certificates
+    condition: certificates.enabled

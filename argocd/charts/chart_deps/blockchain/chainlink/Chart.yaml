@@ -1,0 +1,15 @@
+apiVersion: v2
+name: chainlink
+description: A Helm chart for Chainlink
+type: application
+version: 0.1.0
+keywords:
+  - chainlink
+  - ethereum
+  - oracle
+
+home: https://chain.link
+sources:
+  - https://github.com/smartcontractkit/chainlink
+
+appVersion: 2.1.1

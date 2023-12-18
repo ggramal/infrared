@@ -1,0 +1,4 @@
+argo-cd:
+  enabled: true
+certificates:
+  enabled: false

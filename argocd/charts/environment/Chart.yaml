@@ -1,0 +1,10 @@
+apiVersion: v2
+name: environment
+description: |
+  A Helm chart for creating environment using argocds app of apps pattern.
+  Environment consists of helm chart argocd apps, raw manifests and kustomize
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 1.0.0

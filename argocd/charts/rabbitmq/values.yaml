@@ -1,0 +1,52 @@
+rabbitmq-cluster-operator:
+  enabled: false
+
+rabbitmq-main: {}
+#  annotations:
+#    rabbitmq.com/topology-allowed-namespaces: "namespace1,namespace2"
+#  replicas: 3
+#  override:
+#    statefulSet:
+#      spec:
+#        template:
+#          metadata:
+#            labels:
+#              some_additional_label: 'somevalue'
+#  persistence:
+#    storageClassName: premium-rwo
+#    storage: 10Gi
+#  tolerations:
+#    - key: "SPOT"
+#      operator: "Equal"
+#      value: "true"
+#      effect: "NoSchedule"
+#  affinity:
+#    podAntiAffinity:
+#      requiredDuringSchedulingIgnoredDuringExecution:
+#        - topologyKey: "kubernetes.io/hostname"
+#          labelSelector:
+#            matchLabels:
+#              app.kubernetes.io/name: '{{ include "rabbitmq-operated.fullname" . }}'
+#    nodeAffinity:
+#      requiredDuringSchedulingIgnoredDuringExecution:
+#        nodeSelectorTerms:
+#          - matchExpressions:
+#              - key: SPOT
+#                operator: In
+#                values:
+#                  - "true"
+#
+#  vhosts:
+#    somevhost:
+#      default_queue_type: quorum
+#
+#  serviceMonitor:
+#    enabled: true
+#    selector:
+#      prometheus: main
+#    metric_families:
+#      - queue_coarse_metrics
+#      - queue_metrics
+#      - connection_churn_metrics
+#      - node_coarse_metrics
+#      - channel_queue_exchange_metrics

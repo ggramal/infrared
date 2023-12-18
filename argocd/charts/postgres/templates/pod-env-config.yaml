@@ -1,0 +1,10 @@
+{{- if index .Values "postgres-pod-envs" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-pod-envs
+data:
+  {{- with index .Values "postgres-pod-envs" }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- end }}

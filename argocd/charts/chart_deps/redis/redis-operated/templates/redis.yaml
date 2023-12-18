@@ -1,0 +1,28 @@
+apiVersion: databases.spotahome.com/v1
+kind: RedisFailover
+metadata:
+  name: {{ include "redis-operated.fullname" . }}
+  labels:
+{{- include "redis-operated.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.sentinel }}
+  sentinel:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.redis }}
+  redis:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.auth }}
+  auth:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.bootstrapNode }}
+  bootstrapNode:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.labelWhitelist }}
+  labelWhitelist:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+

@@ -1,0 +1,27 @@
+dependencies:
+- name: chainlink
+  repository: file://../chart_deps/blockchain/chainlink
+  version: 0.1.0
+- name: chainlink
+  repository: file://../chart_deps/blockchain/chainlink
+  version: 0.1.0
+- name: chainlink
+  repository: file://../chart_deps/blockchain/chainlink
+  version: 0.1.0
+- name: chainlink
+  repository: file://../chart_deps/blockchain/chainlink
+  version: 0.1.0
+- name: chainlink
+  repository: file://../chart_deps/blockchain/chainlink
+  version: 0.1.0
+- name: chainlink
+  repository: file://../chart_deps/blockchain/chainlink
+  version: 0.1.0
+- name: chainlink
+  repository: file://../chart_deps/blockchain/chainlink
+  version: 0.1.0
+- name: chainlink
+  repository: file://../chart_deps/blockchain/chainlink
+  version: 0.1.0
+digest: sha256:d04e7efb119f4c0b1874ef17ca28a4d4e59ca4cbdb12b8c9f2f04fffbcedaeb2
+generated: "2023-08-11T18:09:40.642149704+03:00"

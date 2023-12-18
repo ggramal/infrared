@@ -1,0 +1,8 @@
+external-dns:
+  enabled: true
+  serviceAccount:
+    create: false
+    name: external-dns
+  provider: google
+  sources:
+    - service

@@ -1,0 +1,10 @@
+apiVersion: v2
+name: external-dns
+version: 0.1.0
+dependencies:
+  #https://github.com/bitnami/charts/tree/main/bitnami/external-dns
+  - name: external-dns
+    version: 6.26.1
+    repository: oci://registry-1.docker.io/bitnamicharts
+    alias: external-dns
+    condition: external-dns.enabled

@@ -1,0 +1,90 @@
+{{- range $chart_app_name, $chart_app_obj := .Values.chart_apps -}}
+{{- $app_name := (printf "%s-%s" $chart_app_name $.Values.env.name) }}
+{{- $app_name := ternary $app_name $chart_app_obj.name (not $chart_app_obj.name) }}
+{{- if $chart_app_obj.enabled -}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $app_name }}
+  namespace: argocd
+  {{- with $chart_app_obj.finalizers }}
+  finalizers:
+  {{- toYaml . | nindent 6 }}
+  {{- end }}
+  labels:
+  {{- with $.Values.labels }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $chart_app_obj.labels }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  destination:
+    server: {{ $.Values.env.server }}
+    {{- if $chart_app_obj.namespace }}
+    namespace: {{ $chart_app_obj.namespace }}
+    {{- end }}
+  project: {{ $chart_app_obj.project | default "default" }}
+  {{- if $chart_app_obj.values_sources }}
+  sources:
+  - repoURL: {{ $chart_app_obj.repo_url | default $.Values.repository.url }}
+    {{- if $chart_app_obj.chart }}
+    path: {{ $chart_app_obj.chart }}
+    {{- else }}
+    path: {{ printf "%s/%s" $.Values.repository.charts $chart_app_name  }}
+    {{- end }}
+    targetRevision: {{ $chart_app_obj.revision | default $.Values.repository.revision }}
+    {{- if $chart_app_obj.helm }}
+    {{- with $chart_app_obj.helm }}
+    helm:
+      skipCrds: true
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- else }}
+    helm:
+      skipCrds: true
+    {{- if $chart_app_obj.releaseName }}
+      releaseName: {{ $chart_app_obj.releaseName }}
+    {{- else }}
+      releaseName: {{ $app_name }}
+    {{- end }}
+      valueFiles:
+        - {{ printf "%s/%s/%s/values.yaml" $.Values.repository.envs_from_charts $.Values.env.name $chart_app_name }}
+    {{- end }}
+    {{- with $chart_app_obj.values_sources }}
+    {{- toYaml . | nindent 2 }}
+    {{- end }}
+  {{- else }}
+  source:
+    repoURL: {{ $chart_app_obj.repo_url | default $.Values.repository.url }}
+    {{- if $chart_app_obj.chart }}
+    path: {{ $chart_app_obj.chart }}
+    {{- else }}
+    path: {{ printf "%s/%s" $.Values.repository.charts $chart_app_name  }}
+    {{- end }}
+    targetRevision: {{ $chart_app_obj.revision | default $.Values.repository.revision }}
+    {{- if $chart_app_obj.helm }}
+    {{- with $chart_app_obj.helm }}
+    helm:
+      skipCrds: true
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- else }}
+    helm:
+      skipCrds: true
+    {{- if $chart_app_obj.releaseName }}
+      releaseName: {{ $chart_app_obj.releaseName }}
+    {{- else }}
+      releaseName: {{ $app_name }}
+    {{- end }}
+      valueFiles:
+        - {{ printf "%s/%s/%s/values.yaml" $.Values.repository.envs_from_charts $.Values.env.name $chart_app_name }}
+    {{- end }}
+  {{- end }}
+  {{- with $chart_app_obj.syncPolicy }}
+  syncPolicy:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{ end }}
+{{- end }}

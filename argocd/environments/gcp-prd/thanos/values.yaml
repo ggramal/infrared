@@ -1,0 +1,17 @@
+prd:
+  enabled: true
+  fullnameOverride: "thanos-gcp-prd-prd"
+  existingObjstoreSecret: "thanos"
+  compactor:
+    enabled: true
+    serviceAccount:
+      create: true
+      nodeSelector:
+        apps-spot: "true"
+      tolerations:
+      - key: "apps-spot"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      annotations:
+        iam.gke.io/gcp-service-account: thanos@exampleco-production.iam.gserviceaccount.com

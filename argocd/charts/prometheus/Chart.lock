@@ -1,0 +1,33 @@
+dependencies:
+- name: kong-plugins
+  repository: file://../chart_deps/konghq/plugins
+  version: 0.1.0
+- name: prometheus-rules
+  repository: file://../chart_deps/prometheus/prometheus-rules
+  version: 0.1.0
+- name: alertmanager-configs
+  repository: file://../chart_deps/prometheus/alertmanager-configs
+  version: 0.1.0
+- name: probes
+  repository: file://../chart_deps/prometheus/probes
+  version: 0.1.0
+- name: prometheus-operated
+  repository: file://../chart_deps/prometheus/prometheus-operated
+  version: 0.1.0
+- name: alertmanager-operated
+  repository: file://../chart_deps/prometheus/alertmanager-operated
+  version: 0.1.0
+- name: prometheus-postgres-exporter
+  repository: file://../chart_deps/prometheus/postgres-exporter
+  version: 5.0.0
+- name: prometheus-blackbox-exporter
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 8.2.0
+- name: kube-state-metrics
+  repository: https://charts.bitnami.com/bitnami
+  version: 3.1.6
+- name: kube-prometheus-stack
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 47.6.1
+digest: sha256:08fb145e444d9a721eae27d22ba3c4879cfbe8e0dae8552389de69a6e948bf1a
+generated: "2023-12-06T16:26:11.988081863+03:00"

@@ -1,0 +1,39 @@
+{{- if .Values.servicemonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: prometheus
+{{- if .Values.servicemonitor.labels }}
+    {{ toYaml .Values.servicemonitor.labels | indent 4 }}
+    {{- include "prometheus-operated.labels" . | nindent 4 }}
+    {{- if .Values.servicemonitor.prometheusSelector }}
+    {{ tpl (toYaml .Values.servicemonitor.prometheusSelector) . | nindent 4}}
+    {{- end }}
+{{- else }}
+    {{- if .Values.servicemonitor.prometheusSelector }}
+    {{ tpl (toYaml .Values.servicemonitor.prometheusSelector) . | nindent 4}}
+    {{- end }}
+    {{- include "prometheus-operated.labels" . | nindent 4 }}
+{{- end }}
+  name: {{ template "prometheus-operated.fullname" . }}
+spec:
+  {{- with .Values.servicemonitor.endpoints }}
+  endpoints:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  jobLabel: {{ template "prometheus-operated.fullname" . }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app: prometheus
+    {{- include "prometheus-operated.serviceSelectorLabels" . | nindent 6 }}
+{{- if .Values.servicemonitor.targetLabels }}
+  targetLabels:
+{{- range .Values.servicemonitor.targetLabels }}
+  - {{ . }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,41 @@
+rabbitmq-cluster-operator:
+  enabled: true
+  useCertManager: true
+
+rabbitmq-main:
+  enabled: true
+  annotations:
+    rabbitmq.com/topology-allowed-namespaces: "rabbitmq"
+  replicas: 3
+  resources:
+    limits:
+      cpu: "1"
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 500Mi
+  override:
+    statefulSet:
+      spec:
+        template:
+          metadata:
+            labels:
+              #proper labeling is needed for
+              #observability
+              app.kubernetes.io/instance: '{{ include "rabbitmq-cluster.fullname" . }}'
+  persistence:
+    storageClassName: premium-rwo
+    storage: 10Gi
+  vhosts:
+    exampleco:
+      default_queue_type: quorum
+  serviceMonitor:
+    enabled: true
+    selector:
+      prometheus: main
+    metric_families:
+    - queue_coarse_metrics
+    - queue_metrics
+    - connection_churn_metrics
+    - node_coarse_metrics
+    - channel_queue_exchange_metrics

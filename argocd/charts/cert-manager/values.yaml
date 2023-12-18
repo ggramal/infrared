@@ -1,0 +1,7 @@
+cluster_issuers: {}
+
+certificates:
+  enabled: false
+
+cert-manager:
+  enabled: true

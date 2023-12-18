@@ -1,0 +1,26 @@
+apiVersion: v2
+name: grafana
+version: 0.1.0
+appVersion: "v10.1"
+dependencies:
+  - name: grafana-dashboards
+    version: 0.1.0
+    repository: file://../chart_deps/grafana/dashboards
+    alias: dashboard
+    condition: dashboard.enabled
+  - name: grafana-datasources
+    version: 0.1.0
+    repository: file://../chart_deps/grafana/datasources
+    alias: datasource
+    condition: datasource.enabled
+  - name: grafana-operated
+    version: 0.1.0
+    repository: file://../chart_deps/grafana/grafana-operated
+    alias: grafana-main
+    condition: grafana-main.enabled
+  #https://github.com/grafana-operator/grafana-operator/tree/v5.3.0/deploy/helm/grafana-operator
+  - name: grafana-operator
+    version: v5.3.0
+    alias: grafana-operator
+    condition: grafana-operator.enabled
+    repository: oci://ghcr.io/grafana-operator/helm-charts

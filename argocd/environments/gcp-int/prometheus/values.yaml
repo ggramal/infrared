@@ -1,0 +1,241 @@
+operator:
+  commonLabels:
+    prometheus: main
+
+  prometheusOperator:
+    enabled: true
+    tls:
+      enabled: false
+    admissionWebhooks:
+      enabled: false
+    kubeletService:
+      enabled: true
+      namespace: prometheus
+    resources:
+      limits:
+        memory: "1Gi"
+      requests:
+        cpu: "100m"
+        memory: "100Mi"
+
+  kubelet:
+    enabled: true
+    namespace: prometheus
+    serviceMonitor:
+      cAdvisorMetricRelabelings:
+        # Drop cgroup metrics with no pod.
+        - sourceLabels: [id, pod]
+          action: drop
+          regex: ".+;"
+
+alertmanager-configs:
+  enabled: true
+  configs:
+    main:
+      enabled: true
+      selector:
+        alertmanager: main
+      spec:
+        receivers:
+          - name: sre-int
+            slackConfigs:
+              - channel: "#alerts-exampleco"
+                sendResolved: true
+                apiURL:
+                  name: alertmanager
+                  key: SLACK_WEBHOOK
+                title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]'
+                text: >-
+                  {{ range .Alerts }}
+                      *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+                      *Description:* {{ .Annotations.description }}
+                      *Details:*
+                      {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+                      {{ end }}
+                  {{ end }}
+        route:
+          continue: false
+          receiver: sre-int
+          matchers:
+            - name: env
+              value: "int"
+            - name: team
+              value: "sre"
+            - name: severity
+              value: "(low|medium|high|critical)"
+              regex: true
+
+
+kube-state-metrics:
+  enabled: true
+  serviceMonitor:
+    namespace: prometheus
+    labels:
+      prometheus: main
+
+alertmanager-main:
+  enabled: true
+
+  service:
+    enabled: true
+
+  servicemonitor:
+    enabled: true
+    prometheusSelector:
+      prometheus: main
+    endpoints:
+      - port: http
+        path: /metrics
+
+  alertmanager:
+    spec:
+      alertmanagerConfigSelector:
+        matchLabels:
+          alertmanager: main
+
+prometheus-main:
+  enabled: true
+
+  serviceAccount:
+    create: true
+    annotations:
+      iam.gke.io/gcp-service-account: thanos@exampleco-internal.iam.gserviceaccount.com
+
+  service:
+    enabled: true
+
+  servicemonitor:
+    enabled: true
+    prometheusSelector:
+      prometheus: main
+    endpoints:
+      - port: http
+        path: /metrics
+
+  thanosService:
+    enabled: true
+
+  thanosServiceMonitor:
+    enabled: true
+    prometheusSelector:
+      prometheus: main
+    endpoints:
+      - port: http
+        path: /metrics
+
+  prometheus:
+    spec:
+      thanos:
+        image: quay.io/thanos/thanos:v0.31.0
+        version: v0.31.0
+        objectStorageConfig:
+          key: objstore.yml
+          name: thanos
+
+      resources:
+        limits:
+          memory: "4Gi"
+        requests:
+          cpu: "1"
+          memory: "2Gi"
+
+      externalLabels:
+        env: gcp-int
+
+      ruleSelector:
+        matchLabels:
+          prometheus: main
+
+      serviceMonitorSelector:
+        matchLabels:
+          prometheus: main
+
+      podMonitorSelector:
+        matchLabels:
+          prometheus: main
+
+      probeSelector:
+        matchLabels:
+          prometheus: main
+
+      retention: 8h
+
+      alerting:
+        alertmanagers:
+          - name: "{{ .Release.Name }}-alertmanager-main"
+            namespace: prometheus
+            port: http
+
+
+      storage:
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: "2Gi"
+
+
+prometheus-blackbox-exporter:
+  enabled: true
+
+probes:
+  enabled: true
+  probes:
+    argocd:
+      enabled: true
+      selector:
+        prometheus: main
+      spec:
+        jobName: argocd
+        module: http_2xx
+        prober:
+          url: prometheus-gcp-int-prometheus-blackbox-exporter:9115
+        targets:
+          ingress:
+            selector:
+              matchLabels:
+                app.kubernetes.io/instance: argocd-gcp-int
+            namespaceSelector:
+              any: true
+
+prometheus-rules:
+  enabled: true
+  PrometheusRules: {}
+  PrometheusAlerts:
+    prometheus-main:
+      env: "int"
+      team: sre
+      selector:
+        prometheus: main
+      AbsentMetricCritical:
+        rules:
+          - metric: probe_success{job="argocd"}
+            source: "prometheus-blackbox-exporter"
+      CriticalMetric:
+        rules:
+          # Blackbox
+          - name: argocd
+            expr: probe_success{job="argocd"} == 0
+            for: 2m
+            description: URL {{$labels.instance}} is down/unreachable.
+            summary: "{{$labels.instance}} is down"
+
+          # Deployment
+          - name: "Pods_waiting_state"
+            for: "20m"
+            description: "Container {{ $labels.container }} in {{ $labels.exported_pod }} waiting with reason {{ $labels.reason }} for >20 minutes"
+            expr: "sum by (exported_pod, container, namespace, reason) (kube_pod_container_status_waiting_reason{exported_namespace!='kube-system'})>0"
+          - name: "Pods_waiting_state_kube-system"
+            for: "1h"
+            description: "Container {{ $labels.container }} in {{ $labels.exported_pod }} waiting with reason {{ $labels.reason }} for >1h"
+            expr: "sum by (exported_pod, container, namespace, reason) (kube_pod_container_status_waiting_reason{exported_namespace='kube-system'})>0"
+          - name: "pod_replicas_not_ready"
+            for: "15m"
+            description: "Pods replicas less than specified for '{{ $labels.deployment }}'"
+            expr: "kube_deployment_spec_replicas{} != kube_deployment_status_replicas_available{}"
+          - name: "daemonset_not_ready"
+            for: "15m"
+            description: "daemonset '{{ $labels.daemonset }}' not scheduled in 10m"
+            expr: "kube_daemonset_status_number_misscheduled{} > 1"

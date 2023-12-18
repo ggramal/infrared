@@ -1,0 +1,9 @@
+dependencies:
+- name: postgres-cluster
+  repository: file://../chart_deps/postgres/postgres-cluster
+  version: 0.1.0
+- name: postgres-operator
+  repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+  version: 1.10.1
+digest: sha256:ae1713ff483cbddaad42b4796393aa4f7120ae35dabf758d52d250d051a61a08
+generated: "2023-09-27T15:46:48.197378768+03:00"

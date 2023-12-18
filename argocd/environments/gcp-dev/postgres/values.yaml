@@ -1,0 +1,69 @@
+postgres-operator:
+  enabled: true
+  configGeneral:
+    enable_crd_registration: false
+    #Check out docker/zalando/spilo folder
+    docker_image: eu.gcr.io/exampleco-development/zalando/spilo-15:3.0-p1-2
+  podServiceAccount:
+    name: "postgres"
+  configKubernetes:
+    pod_environment_configmap: postgres/postgres-pod-envs
+    enable_pod_antiaffinity: true
+    enable_cross_namespace_secret: true
+    inherited_labels:
+      - "app.kubernetes.io/instance"
+      - "app.kubernetes.io/name"
+      - "app.kubernetes.io/version"
+  configAwsOrGcp:
+    wal_gs_bucket: "exampleco-postgres-dev"
+    additional_secret_mount: "tf-gcp-postgres-service-account"
+    additional_secret_mount_path: "/etc/gcp"
+  configLogicalBackup:
+    logical_backup_docker_image: "registry.opensource.zalan.do/acid/logical-backup:v1.10.1"
+    logical_backup_provider: "gcs"
+    logical_backup_schedule: "30 00 * * *"
+    logical_backup_s3_bucket: "exampleco-postgres-backup-dev"
+    logical_backup_google_application_credentials: "/etc/gcp/key"
+
+postgres-main:
+  # Issue with ownerReference
+  # prevents postgres objects appearing in
+  # argocd ui
+  # https://github.com/zalando/postgres-operator/issues/498?ysclid=ln1v7r1f41951556709
+  enabled: true
+  teamId: exampleco
+  replicas: 2
+  resources:
+    limits:
+      cpu: "2"
+      memory: 2000Mi
+    requests:
+      cpu: 1000m
+      memory: 1000Mi
+  volume:
+    size: 15Gi
+    storageClass: premium-rwo
+  databases:
+    db1: db1_owner
+    db2: db2_owner
+  preparedDatabases:
+    db1:
+      defaultUsers: true
+      schemas:
+        public:
+          defaultRoles: false
+    db2:
+      defaultUsers: true
+      schemas:
+        public:
+          defaultRoles: false
+  logicalBackup:
+    enabled: true
+    schedule: "45 00 * * *"
+  postgresql:
+    version: "15"
+    parameters:
+      password_encryption: "scram-sha-256"
+      max_connections: "100"
+      max_standby_archive_delay: "80000"
+      max_standby_streaming_delay: "80000"

@@ -1,0 +1,12 @@
+dependencies:
+- name: thanos
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 12.11.2
+- name: thanos
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 12.11.2
+- name: thanos
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 12.11.2
+digest: sha256:048f08647f5a5d6b5d7f98f00dc54da58814c79cf1f5c41a7f473119648e61f4
+generated: "2023-12-03T08:56:02.068722119+03:00"

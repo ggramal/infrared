@@ -1,0 +1,39 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+{{- if .Values.labels }}
+{{ toYaml .Values.labels | indent 4 }}
+    {{- include "prometheus-servicemonitor.labels" . | nindent 4 }}
+{{- else }}
+    {{- include "prometheus-servicemonitor.labels" . | nindent 4 }}
+{{- end }}
+  name: {{ template "prometheus-servicemonitor.fullname" . }}
+{{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+{{- end }}
+spec:
+  {{- with .Values.endpoints }}
+  endpoints:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  jobLabel: {{ template "prometheus-servicemonitor.fullname" . }}
+  {{- if .Values.namespaceSelector }}
+  {{- with .Values.namespaceSelector }}
+  namespaceSelector:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- else }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  {{- end }}
+  selector:
+    matchLabels:
+    {{- tpl (toYaml .Values.selector) . | nindent 6 }}
+{{- if .Values.targetLabels }}
+  targetLabels:
+{{- range .Values.targetLabels }}
+  - {{ . }}
+{{- end }}
+{{- end }}

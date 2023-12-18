@@ -1,0 +1,21 @@
+{{- range $user_name, $user_obj := .Values.users }}
+{{- if and $user_obj.enabled }}
+{{- range $vhost_name, $vhost_obj := $user_obj.vhosts }}
+apiVersion: rabbitmq.com/v1beta1
+kind: Permission
+metadata:
+  name: {{ $user_name }}-{{ $vhost_name }}
+spec:
+  vhost: {{ $vhost_name }}
+  userReference:
+    name: {{ $user_name }}
+  {{- with $vhost_obj.permissions }}
+  permissions:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rabbitmqClusterReference:
+    name: {{ tpl ($user_obj.cluster.name) $ }}
+    namespace: {{ $user_obj.cluster.namespace  | default $.Release.Namespace }}
+{{- end }}
+{{- end }}
+{{- end }}

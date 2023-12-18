@@ -1,0 +1,35 @@
+{{- range $ds_obj := .Values.datasources }}
+{{- $enbld := ternary $ds_obj.enabled true ( hasKey $ds_obj "enabled") }}
+{{- if $enbld }}
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  labels:
+{{- include "grafana-datasources.labels" $ | nindent 4 }}
+  name: {{ $ds_obj.name }}
+spec:
+  {{- if $ds_obj.selector }}
+  instanceSelector:
+    matchLabels:
+    {{- toYaml $ds_obj.selector | nindent 6 }}
+  {{- end }}
+  resyncPeriod: {{ $ds_obj.resyncPeriod | default "30s" }}
+  {{- if $ds_obj.allowCrossNamespaceImport }}
+  allowCrossNamespaceImport: {{ $ds_obj.allowCrossNamespaceImport }}
+  {{- end }}
+  {{- with $ds_obj.datasource }}
+  datasource:
+    name: {{ $ds_obj.name }}
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $ds_obj.plugins }}
+  plugins:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with $ds_obj.valuesFrom }}
+  valuesFrom:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

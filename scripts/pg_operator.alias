@@ -1,0 +1,16 @@
+pg_connect() {
+  [[ -z $CLUSTER ]] && echo "CLUSTER not set" && return 1
+  [[ -z $NAMESPACE ]] && echo "NAMESPACE not set" && return 1
+  export PGHOST=$(kubectl get pods -o jsonpath={.items..metadata.name} -l application=spilo,cluster-name=$CLUSTER,spilo-role=master -n $NAMESPACE)
+  kubectl port-forward $PGHOST 5432:5432 -n $NAMESPACE
+}
+
+pg_creds() {
+  [[ -z $CLUSTER ]] && echo "CLUSTER not set" && return 1
+  [[ -z $NAMESPACE ]] && echo "NAMESPACE not set" && return 1
+  local DB=${DB:-$NAMESPACE}
+  export PGHOST=127.0.0.1
+  export PGDATABASE=$DB
+  export PGPASSWORD=$(kubectl get -n $NAMESPACE secret $DB-owner-user.$CLUSTER.credentials.postgresql.acid.zalan.do -o jsonpath="{.data.password}" | base64 -d)
+  export PGUSER=$(kubectl get -n $NAMESPACE secret $DB-owner-user.$CLUSTER.credentials.postgresql.acid.zalan.do -o jsonpath="{.data.username}" | base64 -d)
+}

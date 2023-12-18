@@ -1,0 +1,19 @@
+{{- if .Values.PrometheusRules }}
+{{- range $name, $rule := .Values.PrometheusRules }}
+{{- if $rule.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+{{- include "prometheus-rules.labels" $ | nindent 4 -}}
+{{- toYaml $rule.selector | nindent 4 }}
+  name: {{ $name }}
+  namespace: {{ tpl $rule.namespace $ }}
+spec:
+  {{- with $rule.groups }}
+  groups:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+{{ end -}}
+{{- end }}
+{{- end }}

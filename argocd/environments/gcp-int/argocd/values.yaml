@@ -1,0 +1,50 @@
+argo-cd:
+  enabled: true
+  crds:
+    install: false
+  configs:
+    cm:
+      create: true
+    params:
+      server.insecure: true
+  redis:
+    enabled: false
+
+  redis-ha:
+    enabled: true
+
+  controller:
+    replicas: 1
+    serviceAccount:
+      annotations:
+        iam.gke.io/gcp-service-account: argocd@exampleco-internal.iam.gserviceaccount.com
+
+  server:
+    replicas: 2
+    serviceAccount:
+      annotations:
+        iam.gke.io/gcp-service-account: argocd@exampleco-internal.iam.gserviceaccount.com
+
+    ingress:
+      enabled: true
+      annotations:
+        ingress.kubernetes.io/force-ssl-redirect: "true"
+        cert-manager.io/cluster-issuer: letsencrypt
+      labels: {}
+      ingressClassName: "konghq-gcp-int"
+      hosts:
+      - argocd.int.exampleco.com
+      paths:
+      - /
+      pathType: ImplementationSpecific
+      tls:
+      - secretName: argocd-int-exampleco-com
+        hosts:
+        - argocd.int.exampleco.com
+
+
+  repoServer:
+    replicas: 2
+
+  applicationSet:
+    replicaCount: 2

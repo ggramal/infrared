@@ -1,0 +1,150 @@
+nameOverride: ""
+fullnameOverride: ""
+
+secret:
+  annotations: {}
+  labels: {}
+
+config:
+  global:
+    resolve_timeout: 30m
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+service:
+  enabled: false
+  type: ClusterIP
+  annotations: {}
+  ports:
+    - port: 80
+      targetPort: http-web
+      protocol: TCP
+      name: http
+
+servicemonitor:
+  enabled: false
+  prometheusSelector: {}
+  labels: {}
+  targetLabels: []
+  endpoints:
+    - port: http
+      path: /metrics
+
+ingress:
+  enabled: false
+  className: ""
+  service:
+    port: 80
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+alertmanager:
+  labels: {}
+  spec:
+    podMetadata: {}
+
+    alertmanagerConfigSelector:
+    alertmanagerConfigNamespaceSelector: {}
+
+    alertmanagerConfigMatcherStrategy: {}
+
+    image: "quay.io/prometheus/alertmanager:v0.26.0"
+
+    imagePullPolicy: IfNotPresent
+
+    version: "v0.26.0"
+
+    imagePullSecrets: []
+
+    secrets: []
+
+    configMaps: []
+
+    configSecret: ""
+
+    logLevel: info
+
+    logFormat: logfmt
+
+    replicas: 1
+
+    retention: "120h"
+
+    storage: {}
+
+    volumes: {}
+
+    volumeMounts: {}
+
+    externalUrl: ""
+
+    routePrefix: "/"
+
+    nodeSelector: {}
+
+    resources: {}
+
+    affinity: {}
+
+    tolerations: []
+
+    topologySpreadConstraints: []
+
+    securityContext:
+      fsGroup: 2000
+      runAsGroup: 2000
+      runAsNonRoot: true
+      runAsUser: 1000
+      seccompProfile:
+        type: RuntimeDefault
+
+    listenLocal: false
+
+    containers: []
+
+    initContainers: []
+
+    priorityClassName:
+
+    additionalPeers:
+
+    clusterAdvertiseAddress:
+
+    clusterGossipInterval:
+
+    clusterPushpullInterval:
+
+    clusterPeerTimeout:
+
+    portName: "http-web"
+
+    forceEnableClusterMode:
+
+    minReadySeconds: 0
+
+    hostAliases: []
+
+    web: {}
+
+    paused: false
+
+    alertmanagerConfiguration: {}
+
+    automountServiceAccountToken:

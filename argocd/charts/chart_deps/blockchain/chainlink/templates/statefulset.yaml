@@ -1,0 +1,172 @@
+{{- $app_image_tag := ternary .Values.image.tag .Values.global.image.tag (not .Values.global.image.tag) }}
+{{- $app_nodeSelector := ternary .Values.nodeSelector .Values.global.nodeSelector ( hasKey .Values "nodeSelector") }}
+{{- $app_tolerations := ternary .Values.tolerations .Values.global.tolerations ( hasKey .Values "tolerations") }}
+{{- $app_affinity := ternary .Values.affinity .Values.global.affinity ( hasKey .Values "affinity") }}
+{{- $app_configs := ternary .Values.global.configs .Values.configs ( not .Values.configs) }}
+{{- $app_secrets := ternary .Values.global.secrets .Values.secrets  ( not .Values.secrets) }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "chainlink.fullname" . }}
+  labels:
+    {{- include "chainlink.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "chainlink.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "chainlink.fullname" . }}
+  template:
+    metadata:
+      annotations:
+        checksum/configmaps: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "chainlink.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "chainlink.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ $app_image_tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: 
+            {{- toYaml .Values.image.command | nindent 12 }}
+          args:
+            - node
+            {{- range $config_name, $config_value := $app_configs }}
+            - -c 
+            - /etc/chainlink/configs/{{ $config_name }}
+            {{- end }}
+            {{- range $existing_config := .Values.existingConfigs }}
+            {{- range $key := $existing_config.keys }}
+            - -c
+            - /etc/chainlink/configs/{{ $existing_config.name }}/{{ $key  }}
+            {{- end }}
+            {{- end }}
+            {{- if $app_secrets }}
+            - -s
+            - /etc/chainlink/secrets/default.toml
+            {{- end }}
+            {{- if  .Values.existingSecret }}
+            - -s
+            - /etc/chainlink/secrets/{{ .Values.existingSecret.name }}/{{ .Values.existingSecret.key  }}
+            {{- end }}
+            - start
+            - -d
+            {{- if .Values.existingNodeSecret }}
+            - -p
+            - /etc/chainlink/secrets/node/{{ .Values.existingNodeSecret.key_passwd_key }}
+            {{- end }}
+            {{- if .Values.existingNodeSecret }}
+            - -a
+            - /etc/chainlink/secrets/node/{{ .Values.existingNodeSecret.api_creds_key }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.container.ports.http }}
+              protocol: TCP
+            - name: p2p
+              containerPort: {{ .Values.container.ports.p2p }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          env:
+          {{- with .Values.global.environmentFromSecrets }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.environmentFromSecrets }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.environment }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.global.environment }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- if $app_configs }}
+            - name: configs
+              mountPath: /etc/chainlink/configs
+            {{- end }}
+            {{- if $app_secrets }}
+            - name: secrets
+              mountPath: /etc/chainlink/secrets
+            {{- end }}
+            {{- range $existing_config := .Values.existingConfigs }}
+            - name: {{ $existing_config.name }}
+              mountPath: /etc/chainlink/configs/{{ $existing_config.name }}
+            {{- end }}
+            {{- if .Values.existingSecret }}
+            - name: {{ .Values.existingSecret.name }}
+              mountPath: /etc/chainlink/secrets/{{ .Values.existingSecret.name }}
+            {{- end }}
+            {{- if .Values.existingNodeSecret }}
+            - name: {{ .Values.existingNodeSecret.name }}
+              mountPath: /etc/chainlink/secrets/node
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with $app_nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $app_affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $app_tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        {{- if $app_secrets }}
+        - name: secrets
+          secret:
+            secretName: {{ include "chainlink.fullname" . }}-secret
+        {{- end }}
+        {{- if $app_configs }}
+        - name: configs
+          configMap:
+            name: {{ include "chainlink.fullname" . }}-cm
+        {{- end }}
+        {{- range $existing_config := .Values.existingConfigs }}
+        {{- if eq $existing_config.type "secret" }}
+        - name: {{ $existing_config.name }}
+          secret:
+            secretName: {{ $existing_config.name }}
+        {{- end }}
+        {{- if eq $existing_config.type "configMap" }}
+        - name: {{ $existing_config.name }}
+          configMap:
+            name: {{ $existing_config.name }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.existingSecret }}
+        - name: {{ .Values.existingSecret.name }}
+          secret:
+            secretName: {{ .Values.existingSecret.name }}
+        {{- end }}
+        {{- if .Values.existingNodeSecret }}
+        - name: {{ .Values.existingNodeSecret.name }}
+          secret:
+            secretName: {{ .Values.existingNodeSecret.name }}
+        {{- end }}
+

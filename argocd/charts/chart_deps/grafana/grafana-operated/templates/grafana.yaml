@@ -1,0 +1,48 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  labels:
+{{- include "grafana-operated.labels" . | nindent 4 -}}
+{{- toYaml .Values.selector | nindent 4 }}
+  name: {{ include "grafana-operated.fullname" . }}
+spec:
+  {{- with .Values.client }}
+  client:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.config }}
+  config:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.deployment }}
+  deployment:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.external }}
+  external:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.ingress }}
+  ingress:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.jsonnet }}
+  jsonnet:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.persistentVolumeClaim }}
+  persistentVolumeClaim:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.route }}
+  route:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.service }}
+  service:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.serviceAccount }}
+  serviceAccount:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}

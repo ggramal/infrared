@@ -1,0 +1,11 @@
+grafana-operator:
+  enabled: false
+
+grafana-main:
+  enabled: false
+
+datasource:
+  enabled: true
+
+dashboard:
+  enabled: true

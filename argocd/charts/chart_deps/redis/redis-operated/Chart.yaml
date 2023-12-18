@@ -1,0 +1,5 @@
+apiVersion: v2
+appVersion: "1.0"
+description: Chart for configuring and installing redis failover instances using redis operator
+name: redis-operated
+version: 0.1.0

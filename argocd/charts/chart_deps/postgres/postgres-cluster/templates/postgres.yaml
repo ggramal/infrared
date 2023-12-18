@@ -1,0 +1,78 @@
+---
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: {{ include "postgres-cluster.fullname" . }}
+  {{- with .Values.annotations }}
+  annotations:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+{{- if .Values.labels }}
+{{ toYaml .Values.labels | indent 4 }}
+    {{- include "postgres-cluster.labels" . | nindent 4 }}
+{{- else }}
+    {{- include "postgres-cluster.labels" . | nindent 4 }}
+{{- end }}
+spec:
+  teamId: {{ .Values.teamId }}
+  numberOfInstances: {{ .Values.replicas | default "2" }}
+  {{- with .Values.users }}
+  users:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.databases }}
+  databases:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.preparedDatabases }}
+  preparedDatabases:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.postgresql }}
+  postgresql:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.env }}
+  env:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.volume }}
+  volume:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  enableShmVolume: {{ .Values.enableShmVolume | default true }}
+  {{- with .Values.podAnnotations }}
+  podAnnotations:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.serviceAnnotations }}
+  serviceAnnotations:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.tolerations }}
+  tolerations:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.resources }}
+  resources:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.patroni }}
+  patroni:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  enableLogicalBackup: {{ .Values.logicalBackup.enabled }}
+  logicalBackupSchedule: {{ .Values.logicalBackup.schedule  }}
+  {{- with .Values.connectionPooler }}
+  connectionPooler:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.sidecars }}
+  sidecars:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- with .Values.nodeAffinity }}
+  nodeAffinity:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}

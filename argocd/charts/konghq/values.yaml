@@ -1,0 +1,6 @@
+kong-plugins:
+  enabled: false
+  plugins: []
+
+kong:
+  enabled: true

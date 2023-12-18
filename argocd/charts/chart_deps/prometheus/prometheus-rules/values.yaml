@@ -1,0 +1,34 @@
+PrometheusAlerts: {}
+#      env: "prd"
+#      team: chicken
+#      selector:
+#        prometheus: chicken-coop-1
+#      AbsentMetricCritical:
+#        - metric: "chicken_not_ok"
+#          source: "chicken exporter"
+#      CriticalMetric:
+#        # Deployment
+#        - name: "chickens_are_not_ok"
+#          for: "20m"
+#          description: "More than 10 percent chickens are not ok"
+#          expr: "name:chicken_not_ok:percent > 10"
+PrometheusRules: {}
+#  - name: chicken
+#    namespace: default
+#    selector:
+#      prometheus: chicken-сoop-1
+#    groups:
+#      - name: chicken-coop-1
+#        rules:
+#          - alert: chickens-not-good
+#            annotations:
+#              what: chicken butt
+#              who: chicken poo
+#            expr: name:chicken_not_ok:percent != 1
+#            for: 2m
+#            labels:
+#              env: kitchen
+#              severity: ACHTUNG
+#              team: KFC
+#          - record: name:chicken_not_ok:percent
+#            expr: ((sum (chicken_not_ok)/chickens) * 100)

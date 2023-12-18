@@ -1,0 +1,37 @@
+{{- if .Values.sentinelServiceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ template "redis-operated.fullname" . }}-sentinel
+  labels:
+{{- if .Values.sentinelServiceMonitor.labels }}
+    {{ toYaml .Values.sentinelServiceMonitor.labels | indent 4 }}
+    {{- include "redis-operated.labels" . | nindent 4 }}
+    {{- if .Values.sentinelServiceMonitor.prometheusSelector }}
+    {{ tpl (toYaml .Values.sentinelServiceMonitor.prometheusSelector) . | nindent 4}}
+    {{- end }}
+{{- else }}
+    {{- if .Values.sentinelServiceMonitor.prometheusSelector }}
+    {{ tpl (toYaml .Values.sentinelServiceMonitor.prometheusSelector) . | nindent 4}}
+    {{- end }}
+    {{- include "redis-operated.labels" . | nindent 4 }}
+{{- end }}
+spec:
+  {{- with .Values.sentinelServiceMonitor.endpoints }}
+  endpoints:
+  {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: sentinel
+    {{- include "redis-operated.serviceSelectorLabels" . | nindent 6 }}
+{{- if .Values.sentinelServiceMonitor.targetLabels }}
+  targetLabels:
+{{- range .Values.sentinelServiceMonitor.targetLabels }}
+  - {{ . }}
+{{- end }}
+{{- end }}
+{{- end }}

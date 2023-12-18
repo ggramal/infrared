@@ -1,0 +1,283 @@
+nameOverride: ""
+fullnameOverride: ""
+
+labels: {}
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+service:
+  enabled: false
+  type: ClusterIP
+  annotations: {}
+  ports:
+    - port: 80
+      targetPort: http-web
+      protocol: TCP
+      name: http
+
+thanosService:
+  enabled: false
+  type: ClusterIP
+  annotations: {}
+  ports:
+    - port: 8080
+      targetPort: grpc
+      protocol: TCP
+      name: grpc
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+
+servicemonitor:
+  enabled: false
+  prometheusSelector: {}
+  labels: {}
+  targetLabels: []
+  endpoints:
+    - port: http
+      path: /metrics
+
+thanosSericeMonitor:
+  enabled: false
+  prometheusSelector: {}
+  labels: {}
+  targetLabels: []
+  endpoints:
+    - port: http
+      path: /metrics
+
+thanosIngress:
+  enabled: false
+  className: ""
+  service:
+    port: 8080
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+ingress:
+  enabled: false
+  className: ""
+  service:
+    port: 80
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+prometheus:
+  labels: {}
+  spec:
+    podMetadata: {}
+
+    serviceMonitorSelector:
+    serviceMonitorNamespaceSelector: {}
+
+    podMonitorSelector:
+    podMonitorNamespaceSelector: {}
+
+    probeSelector:
+    probeNamespaceSelector: {}
+
+    ruleSelector:
+    ruleNamespaceSelector: {}
+
+    scrapeConfigSelector: {}
+    scrapeConfigNamespaceSelector: {}
+
+    paused: false
+
+    image: "quay.io/prometheus/prometheus:v2.48.0"
+
+    version: "v2.48.0"
+
+    imagePullPolicy: IfNotPresent
+
+    imagePullSecrets: []
+
+    replicas: 1
+
+    shards: 1
+
+    replicaExternalLabelName:
+
+    prometheusExternalLabelName:
+
+    logLevel: info
+
+    logFormat: logfmt
+
+    scrapeInterval: "30s"
+
+    scrapeTimeout: "10s"
+
+    externalLabels: {}
+
+    enableRemoteWriteReceiver: false
+
+    enableFeatures: []
+
+    externalUrl: ""
+
+    routePrefix: "/"
+
+    storage: {}
+
+    volumes: {}
+
+    volumeMounts: {}
+
+    persistentVolumeClaimRetentionPolicy: {}
+
+    web: {}
+
+    resources: {}
+
+    nodeSelector: {}
+
+    secrets: []
+
+    configMaps: []
+
+    affinity: {}
+
+    tolerations: []
+
+    topologySpreadConstraints: []
+
+    remoteWrite: []
+
+    securityContext:
+      fsGroup: 2000
+      runAsGroup: 2000
+      runAsNonRoot: true
+      runAsUser: 1000
+      seccompProfile:
+        type: RuntimeDefault
+
+    listenLocal: false
+
+    containers: []
+
+    initContainers: []
+
+    additionalScrapeConfigs: {}
+
+    apiserverConfig: {}
+
+    priorityClassName:
+
+    portName: "http-web"
+
+    arbitraryFSAccessThroughSMs:
+
+    overrideHonorLabels: false
+
+    overrideHonorTimestamps: false
+
+    ignoreNamespaceSelectors: false
+
+    enforcedNamespaceLabel: ""
+
+    enforcedTargetLimit:
+
+    enforcedLabelLimit:
+
+    enforcedLabelNameLengthLimit:
+
+    enforcedLabelValueLengthLimit:
+
+    enforcedKeepDroppedTargets:
+
+    enforcedBodySizeLimit:
+
+    minReadySeconds: 0
+
+    hostAliases: []
+
+    additionalArgs: []
+
+    walCompression: true
+
+    excludedFromEnforcement: []
+
+    hostNetwork: false
+
+    podTargetLabels: []
+
+    tracingConfig: []
+
+    bodySizeLimit:
+
+    sampleLimit:
+
+    targetLimit:
+
+    labelLimit:
+
+    labelNameLengthLimit:
+
+    labelValueLengthLimit:
+
+    keepDroppedTargets:
+
+    retention: "8h"
+
+    disableCompaction: false
+
+    rules: []
+
+    prometheusRulesExcludedFromEnforce: []
+
+    query: {}
+
+    alerting: {}
+  #    alertmanagers:
+  #      - name: main-alertmanager
+  #        namespace: prometheus
+  #        port: http-web
+
+    additionalAlertRelabelConfigs: {}
+
+    additionalAlertManagerConfigs: {}
+
+    remoteRead: []
+
+    thanos:
+      blockSize: 2h
+
+    queryLogFile:
+
+    exemplars: {}
+
+    evaluationInterval: "30s"
+
+    enableAdminAPI: false
+
+    tsdb:
+      outOfOrderTimeWindow: 0s

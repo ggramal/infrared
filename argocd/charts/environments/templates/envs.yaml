@@ -1,0 +1,37 @@
+{{- range $env_name, $env_obj := .Values.envs -}}
+{{- if $env_obj.enabled -}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $env_name }}
+  namespace: argocd
+  {{- with $env_obj.finalizers }}
+  finalizers:
+  {{- toYaml . | nindent 6 }}
+  {{- end }}
+  labels:
+  {{- with $.Values.labels }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $env_obj.labels }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  project: default
+  source:
+    path: {{ $.Values.repository.env_chart}}
+    repoURL: {{ $.Values.repository.url }}
+    targetRevision: {{ $env_obj.revision | default $.Values.repository.revision }}
+    helm:
+      valueFiles:
+        - ../../environments/{{ $env_name }}/env.yaml
+  {{- with $env_obj.syncPolicy }}
+  syncPolicy:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{ end }}
+{{- end }}

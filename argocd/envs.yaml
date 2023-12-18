@@ -1,0 +1,40 @@
+#Be carefull check the syncPolicy
+#when setting enabled: false for envs
+#or deleting this file. It may cause
+#deletion of all your resources in all envs
+repository:
+  url: "git@github.com:exampleco/infrastructure.git"
+  revision: master
+
+root:
+  enabled: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+envs:
+  gcp-prd:
+    enabled: true
+    finalizers:
+      - resources-finalizer.argocd.argoproj.io
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+  gcp-dev:
+    enabled: true
+    finalizers:
+      - resources-finalizer.argocd.argoproj.io
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+  gcp-int:
+    enabled: true
+    finalizers:
+      - resources-finalizer.argocd.argoproj.io
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
