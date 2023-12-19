@@ -86,3 +86,9 @@ variable "kms_key_rings" {
   type        = map(any)
   default     = {}
 }
+
+variable "cloud_tasks" {
+  description = "A list of cloud tasks"
+  type        = map(any)
+  default     = {}
+}
