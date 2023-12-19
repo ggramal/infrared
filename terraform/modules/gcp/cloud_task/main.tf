@@ -1,5 +1,5 @@
 resource "google_cloud_tasks_queue" "this" {
-  name = var.name
+  name     = var.name
   location = var.location
 
   dynamic "rate_limits" {
@@ -7,12 +7,12 @@ resource "google_cloud_tasks_queue" "this" {
     content {
       max_concurrent_dispatches = rate_limits.value.max_concurrent_dispatches
       max_dispatches_per_second = rate_limits.value.max_dispatches_per_second
-      max_burst_size = rate_limits.value.max_burst_size
+      max_burst_size            = rate_limits.value.max_burst_size
     }
   }
 
   dynamic "retry_config" {
-    for_each = var.retry_configs == null ? {} : { "retry_configs" = var.retry_configs } 
+    for_each = var.retry_configs == null ? {} : { "retry_configs" = var.retry_configs }
     content {
       max_attempts       = retry_config.value.max_attempts
       max_retry_duration = retry_config.value.max_retry_duration
@@ -23,5 +23,10 @@ resource "google_cloud_tasks_queue" "this" {
   }
 }
 
-
-
+resource "google_cloud_tasks_queue_iam_binding" "binding" {
+  for_each = var.iam_bindings
+  location = var.location
+  name     = google_cloud_tasks_queue.this.name
+  role     = each.value.role
+  members  = each.value.members
+}

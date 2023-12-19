@@ -293,10 +293,11 @@ module "kms" {
 /* cloud tasks */
 
 module "cloud_tasks" {
-  source = "./cloud_task"
-  for_each = var.cloud_tasks
-  name = each.value.name
-  location = each.value.location
-  rate_limits = each.value.rate_limits
+  source        = "./cloud_task"
+  for_each      = var.cloud_tasks
+  name          = each.value.name
+  location      = each.value.location
+  rate_limits   = each.value.rate_limits
   retry_configs = each.value.retry_configs
+  iam_bindings  = try(each.value.iam_bindings, {})
 }

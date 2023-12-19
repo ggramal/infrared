@@ -14,7 +14,7 @@ variable "rate_limits" {
     {
       max_dispatches_per_second = optional(number)
       max_concurrent_dispatches = optional(number)
-      max_burst_size = optional(number)
+      max_burst_size            = optional(number)
     }
   )
 
@@ -25,13 +25,26 @@ variable "retry_configs" {
   description = "Cloud task retry configuration"
   type = object(
     {
-      max_attempts = optional(number)
+      max_attempts       = optional(number)
       max_retry_duration = optional(string)
-      min_backoff = optional(string)
-      max_backoff = optional(string)
-      max_doublings = optional(number)
+      min_backoff        = optional(string)
+      max_backoff        = optional(string)
+      max_doublings      = optional(number)
     }
   )
 
   default = null
+}
+
+variable "iam_bindings" {
+  description = "Iam bindings for this cloud task"
+  type = map(
+    object(
+      {
+        role    = string
+        members = list(string)
+      }
+    )
+  )
+  default = {}
 }
