@@ -13,12 +13,13 @@ resource "google_cloud_tasks_queue" "this" {
 
   dynamic {
     for_each = var.retry_configs == null ? {} : { "retry_configs" = var.retry_configs } 
-  retry_config {
-    max_attempts       = retry_configs.value.max_attempts
-    max_retry_duration = retry_configs.value.max_retry_duration
-    max_backoff        = retry_configs.value.max_backoff
-    min_backoff        = retry_configs.value.min_backoff
-    max_doublings      = retry_configs.value.max_doublings
+    retry_config {
+      max_attempts       = retry_configs.value.max_attempts
+      max_retry_duration = retry_configs.value.max_retry_duration
+      max_backoff        = retry_configs.value.max_backoff
+      min_backoff        = retry_configs.value.min_backoff
+      max_doublings      = retry_configs.value.max_doublings
+    }
   }
 }
 
