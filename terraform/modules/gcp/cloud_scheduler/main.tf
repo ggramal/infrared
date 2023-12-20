@@ -13,6 +13,22 @@ resource "google_cloud_scheduler_job" "this" {
       http_method = http_target.value.http_method
       body        = http_target.value.body
       headers     = http_target.value.headers
+
+      dynamic "oauth_token" {
+        for_each = http_target.value.oauth_token == null ? {} : { "oauth_token" = http_target.value.oauth_token }
+        content {
+          service_account_email = oauth_token.value.service_account_email
+          scope                 = oauth_token.value.scope
+        }
+      }
+
+      dynamic "oidc_token" {
+        for_each = http_target.value.oidc_token == null ? {} : { "oidc_token" = http_target.value.oidc_token }
+        content {
+          service_account_email = oidc_token.value.service_account_email
+          audience              = oidc_token.value.audience
+        }
+      }
     }
   }
 

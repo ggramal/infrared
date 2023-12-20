@@ -61,6 +61,22 @@ variable "http_target" {
       http_method = string
       body        = optional(string)
       headers     = optional(map(string))
+      oauth_token = optional(
+        object(
+          {
+            service_account_email = string
+            scope                 = optional(string)
+          }
+        )
+      )
+      oidc_token = optional(
+        object(
+          {
+            service_account_email = string
+            audience              = optional(string)
+          }
+        )
+      )
     }
   )
   default = null
