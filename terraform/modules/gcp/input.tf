@@ -92,3 +92,9 @@ variable "cloud_tasks" {
   type        = map(any)
   default     = {}
 }
+
+variable "cloud_schedules" {
+  description = "A list of cloud schedules"
+  type        = map(any)
+  default     = {}
+}

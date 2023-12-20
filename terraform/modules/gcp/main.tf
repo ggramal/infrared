@@ -301,3 +301,18 @@ module "cloud_tasks" {
   retry_configs = each.value.retry_configs
   iam_bindings  = try(each.value.iam_bindings, {})
 }
+
+/* cloud scheduler */
+
+module "cloud_scheduler" {
+  source           = "./cloud_scheduler"
+  for_each         = var.cloud_schedules
+  name             = each.value.name
+  schedule         = each.value.schedule
+  description      = try(each.value.description, "")
+  timezone         = try(each.value.timezone, "Etc/UTC")
+  paused           = try(each.value.paused, false)
+  attempt_deadline = try(each.value.attempt_deadline, null)
+  retry_configs    = try(each.value.retry_configs, null)
+  http_target      = each.value.http_target
+}
