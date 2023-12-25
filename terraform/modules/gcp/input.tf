@@ -98,3 +98,9 @@ variable "cloud_schedules" {
   type        = map(any)
   default     = {}
 }
+
+variable "firestores" {
+  description = "A list of firestores"
+  type        = map(any)
+  default     = {}
+}

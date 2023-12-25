@@ -304,7 +304,7 @@ module "cloud_tasks" {
 
 /* cloud scheduler */
 
-module "cloud_scheduler" {
+module "cloud_schedules" {
   source           = "./cloud_scheduler"
   for_each         = var.cloud_schedules
   name             = each.value.name
@@ -315,4 +315,12 @@ module "cloud_scheduler" {
   attempt_deadline = try(each.value.attempt_deadline, null)
   retry_configs    = try(each.value.retry_configs, null)
   http_target      = each.value.http_target
+}
+
+/* firestore */
+
+module "firestores" {
+  source   = "./firestore"
+  for_each = var.firestores
+  db       = each.value.db
 }
