@@ -19,16 +19,24 @@ variable "concurrency_mode" {
   default     = null
 }
 
-variable "app_engine_integration_mode" {
+variable "app_engine" {
   description = "Firestore db app engine integration mode to use"
-  type        = string
-  default     = "DISABLED"
+  type = object(
+    {
+      integration_mode = string
+      create           = bool
+    }
+  )
+  default = {
+    integration_mode = "DISABLED"
+    create           = false
+  }
 }
 
 variable "delete_protection_state" {
   description = "Firestore db delete protection state"
   type        = string
-  default     = "DELETE_PROTECTION_STATE_UNSPECIFIED"
+  default     = "DELETE_PROTECTION_DISABLED"
 }
 
 variable "deletion_policy" {
