@@ -248,8 +248,13 @@ module "cloudrun_services" {
     "EXECUTION_ENVIRONMENT_GEN2"
   )
 
-  ingress         = each.value.ingress
-  members         = try(each.value.members, [])
+  ingress = each.value.ingress
+  members = try(
+    each.value.members,
+    [
+      "allUsers"
+    ]
+  )
   neg_enabled     = try(each.value.neg_enabled, false)
   container       = each.value.container
   scaling         = each.value.scaling
