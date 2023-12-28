@@ -60,3 +60,10 @@ output "kms" {
     kms_name => kms_obj
   }
 }
+
+output "tasks" {
+  value = {
+    for task_name, task_obj in module.cloud_tasks :
+    task_name => task_obj.task
+  }
+}
