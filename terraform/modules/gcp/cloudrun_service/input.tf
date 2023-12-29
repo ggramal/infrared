@@ -17,6 +17,7 @@ variable "execution_environment" {
 variable "ingress" {
   description = "cloudrun service ingress policy"
   type        = string
+  default     = "INGRESS_TRAFFIC_ALL"
 }
 
 variable "service_account" {

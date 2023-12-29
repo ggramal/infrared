@@ -248,7 +248,7 @@ module "cloudrun_services" {
     "EXECUTION_ENVIRONMENT_GEN2"
   )
 
-  ingress = each.value.ingress
+  ingress = try(each.value.ingress, "INGRESS_TRAFFIC_ALL")
   members = try(
     each.value.members,
     [
