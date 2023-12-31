@@ -1,11 +1,13 @@
 output "service_accounts" {
   value = {
-    for sa_name, sa_obj in google_service_account.service-accounts :
-    sa_name => merge(
-      sa_obj,
-      {
-        key = var.service_accounts[sa_name].generate_key ? google_service_account_key.service-account-keys[sa_name].private_key : ""
-      }
-    )
+    for sa_name, sa_obj in module.service_accounts :
+    sa_name => sa_obj.service_account
+  }
+}
+
+output "custom_roles" {
+  value = {
+    for role_name, role_obj in module.custom_roles :
+    role_name => role_obj.custom_role
   }
 }

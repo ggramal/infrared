@@ -19,8 +19,8 @@ output "nats" {
   }
 }
 
-output "service_accounts" {
-  value = module.iam.service_accounts
+output "iam" {
+  value = module.iam
 }
 
 output "cloudsql_postgres" {
