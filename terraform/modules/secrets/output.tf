@@ -4,7 +4,7 @@ output "gcp_secrets" {
     "${secret_obj.name}.${secret_obj.secret_name}" => merge(
       secret_obj,
       {
-        gcp = module.gcp_secrets["${secret_obj.name}-${secret_obj.secret_name}"]
+        gcp = module.gcp_secrets["${secret_obj.name}-${secret_obj.secret_name}"].secret
       }
     )
   }
